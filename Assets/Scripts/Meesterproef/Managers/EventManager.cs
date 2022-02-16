@@ -8,7 +8,6 @@ public class EventManager : MonoBehaviour
     public UnityEvent OnEnter;
     public UnityEvent OnStay;
     public UnityEvent OnExit;
-    private GameObject triggerer = null;
 
     private void OnTriggerEnter(Collider other)
     {

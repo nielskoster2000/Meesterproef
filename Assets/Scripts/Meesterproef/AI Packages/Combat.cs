@@ -9,8 +9,8 @@ public class Combat : MonoBehaviour
     List<CapsuleCollider> players = new List<CapsuleCollider>();
 
     //Variables
-    [SerializeField] int health = 100;
-    [SerializeField] float eyeDistance = 0.1f;
+    //[SerializeField] int health = 100;
+    //[SerializeField] float eyeDistance = 0.1f;
 
 
     private void Start()
