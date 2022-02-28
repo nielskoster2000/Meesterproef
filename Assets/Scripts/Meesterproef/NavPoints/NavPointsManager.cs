@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+
 public class NavPointsManager : MonoBehaviour
 {
     public static List<NavPoint> navPoints = new List<NavPoint>();
@@ -44,6 +45,7 @@ public class NavPointsManager : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
 namespace Utils.EditorExtension
 {
     [CustomEditor(typeof(NavPointsManager))]
@@ -66,6 +68,4 @@ namespace Utils.EditorExtension
         }
     }
 }
-
-
-
+#endif
