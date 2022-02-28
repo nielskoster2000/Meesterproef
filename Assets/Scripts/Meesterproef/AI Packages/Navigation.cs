@@ -18,17 +18,29 @@ public class Navigation : MonoBehaviour
 
     private void Update()
     {
-        if (TargetReached())
+        if (!Settings.gamePaused)
         {
-            traveledNavPoints.Enqueue(targetNavPoint);
-
-            if (traveledNavPoints.Count > travelQueueBuffer)
+            if (!navMeshAgent.enabled)
             {
-                traveledNavPoints.Dequeue();
+                navMeshAgent.enabled = true;
             }
 
-            currentNavPoint = targetNavPoint;
-            SetNewTarget();
+            if (TargetReached())
+            {
+                traveledNavPoints.Enqueue(targetNavPoint);
+
+                if (traveledNavPoints.Count > travelQueueBuffer)
+                {
+                    traveledNavPoints.Dequeue();
+                }
+
+                currentNavPoint = targetNavPoint;
+                SetNewTarget();
+            }
+        }
+        else
+        {
+            navMeshAgent.enabled = false;
         }
     }
 

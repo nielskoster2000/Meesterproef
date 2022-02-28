@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    [SerializeField] List<Weapon> weapons = new List<Weapon>();
+    [SerializeField] List<GameObject> weapons = new List<GameObject>();
     int selectedWeapon;
     GameObject hand;
 
@@ -13,22 +13,48 @@ public class Inventory : MonoBehaviour
         hand = transform.Find("Hand").gameObject;
     }
 
-    void Pickup(Weapon weapon)
+    public void Pickup(GameObject weapon)
     {
-        weapons.Add(weapon);
-    }
-
-    void Equip(Weapon weapon)
-    {
-        weapon.gameObject.transform.position = hand.transform.position;
-        weapon.gameObject.transform.rotation = hand.transform.rotation;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("weapon"))
+        if (!weapons.Contains(weapon))
         {
-            Pickup(other.GetComponent<Weapon>());
+            weapons.Add(weapon);
+            if (gameObject.CompareTag("Player") && Settings.equipOnPickup)
+            {
+                Equip(weapon);
+            }
+        }
+        else
+        {
+            foreach (GameObject w in weapons)
+            {
+                if (weapon == w)
+                {
+                    Weapon wComponent = w.GetComponent<Weapon>();
+                    wComponent.AddAmmo(wComponent.ammoPickupAmount);
+                }
+            }
+        }
+    }
+
+    public void Equip(GameObject inventoryweapon)
+    {
+        if (inventoryweapon.activeSelf)
+        {
+            inventoryweapon.SetActive(true);
+        }
+
+        GameObject weapon = GameObject.Instantiate(inventoryweapon);
+
+        weapon.transform.position = hand.transform.position;
+        weapon.transform.rotation = hand.transform.rotation;
+        weapon.transform.parent = hand.transform;
+    }
+
+    public void UnEquip(GameObject weapon)
+    {
+        if (weapon.activeSelf)
+        {
+            Destroy(weapon);
         }
     }
 }

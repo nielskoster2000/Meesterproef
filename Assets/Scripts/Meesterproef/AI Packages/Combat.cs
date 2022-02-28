@@ -58,7 +58,7 @@ public class Combat : MonoBehaviour
         {
             if (hit.transform.gameObject == target.gameObject) //Check that we're hitting an actual player
             {
-                Debug.DrawRay(pos, dir, Color.yellow);
+                Debug.DrawLine(pos, dir, Color.yellow, Mathf.Infinity);
 
                 return false;
             }
