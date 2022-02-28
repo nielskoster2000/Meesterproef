@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public class Weapon : Item
 {
     public enum Type
     {
@@ -10,12 +10,13 @@ public class Weapon : MonoBehaviour
         ranged
     }
 
-    [SerializeField] public bool automatic;
-    [SerializeField] public Type type;
-    [SerializeField] public int ammo;
-    [SerializeField] public float cooldownTime;
-    [SerializeField] public bool cooldown;
-    [SerializeField] public int damage;
+    [SerializeField] bool automatic;
+    [SerializeField] Type type;
+    [SerializeField] int ammo;
+    [SerializeField] float cooldownTime;
+    [SerializeField] bool cooldown;
+    [SerializeField] int damage;
+    [SerializeField] public int ammoPickupAmount;
 
     private void Update()
     {
@@ -36,7 +37,7 @@ public class Weapon : MonoBehaviour
 
     }
 
-    public virtual void Use()
+    public override void Use()
     {
         if (ammo > 0 && cooldown)
         {
@@ -60,6 +61,11 @@ public class Weapon : MonoBehaviour
         cooldown = false;
         yield return new WaitForSeconds(cooldownTime);
         cooldown = true;
+    }
+
+    public void AddAmmo(int amount)
+    {
+        ammo += amount;
     }
 
 
