@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
     [Space]
     //Mouse
     [Range(10, 100)]
-    public float mouseSens = 75; //Turned this public so that flyingcam can copy its sens
     float yaw;
     float pitch;
 
@@ -37,16 +36,23 @@ public class Player : MonoBehaviour
         cam = player.GetComponentInChildren<Camera>();
         charcontroller = player.GetComponent<CharacterController>();
         movementdirection = Vector3.zero;
-
-        //Make cursor locked and invisible
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LockCursor(true);
     }
 
-        private void Update()
+    private void Update()
     {
-        CheckKeyBoardInputs();
-        CheckMouseInputs();
+        if (!Settings.gamePaused)
+        {
+            CheckKeyBoardInputs();
+            CheckMouseInputs();
+        }
+
+        //Pause game
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Settings.PauseGame(!Settings.gamePaused);
+            LockCursor(!Cursor.visible);
+        }
     }
 
     void CheckKeyBoardInputs()
@@ -74,25 +80,33 @@ public class Player : MonoBehaviour
 
         //Move the player with the provided vector, in time.deltatime ofcourse
         charcontroller.Move(movementdirection * walkspeed * Time.deltaTime);
-
-
-        //Quit game
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Application.Quit();
-        }
     }
 
     void CheckMouseInputs()
     {
-        yaw += mouseSens * Input.GetAxis("Mouse X") / 100; //Left and right
-        pitch -= mouseSens * Input.GetAxis("Mouse Y") / 100; //Up and down
+        yaw += Settings.mouseSens * Input.GetAxis("Mouse X") / 100; //Left and right
+        pitch -= Settings.mouseSens * Input.GetAxis("Mouse Y") / 100; //Up and down
 
         //Clamp the pitch so that we cant go further than -90 or 90 degrees up or down
         pitch = Mathf.Clamp(pitch, -90, 90);
 
         charcontroller.transform.eulerAngles = new Vector3(0f, yaw, 0f);
         cam.transform.eulerAngles = new Vector3(pitch, yaw, 0);
-        
+    }
+
+    void LockCursor(bool boolean)
+    {
+        if (Settings.keepCursorInApplicationWindow)
+        {
+            Cursor.lockState = (CursorLockMode)(System.Convert.ToInt32(boolean) + 1);
+        }
+        else
+        {
+            Cursor.lockState = (CursorLockMode)(System.Convert.ToInt32(boolean));
+        }
+
+        print(Cursor.lockState);
+        Cursor.visible = boolean;
+        print(Cursor.visible);
     }
 }
