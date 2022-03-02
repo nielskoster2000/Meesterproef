@@ -7,6 +7,7 @@ public class Combat : MonoBehaviour
     //Objects
     Camera cam;
     List<CapsuleCollider> players = new List<CapsuleCollider>();
+    public bool combat = false;
 
     //Variables
     //[SerializeField] int health = 100;
@@ -34,6 +35,7 @@ public class Combat : MonoBehaviour
             if (player.gameObject != gameObject)
             {
                 player.gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+                combat = false;
 
                 if (GeometryUtility.TestPlanesAABB(planes, player.bounds)) //Is a player in the camera's view?
                 {
@@ -41,6 +43,7 @@ public class Combat : MonoBehaviour
                     {
                         //Do stuff here
                         player.GetComponent<MeshRenderer>().material.color = Color.red;
+                        combat = true;
                         break;
                     }
                 }
@@ -51,15 +54,17 @@ public class Combat : MonoBehaviour
     bool IsObstructed(GameObject target, float eyeOffset = 0f)
     {
         RaycastHit hit;
-        Vector3 pos = gameObject.transform.position + (target.transform.right * eyeOffset);
-        //print(target.transform.right * eyeOffset);
+        Vector3 pos = cam.transform.position + (target.transform.right * eyeOffset);
         Vector3 dir = (target.transform.position - pos).normalized;
+
+
+
         if (Physics.Raycast(pos, dir, out hit, Mathf.Infinity)) //Send raycast to check if the player in the camera's view isn't behind a wall or other obstruction
         {
-            if (hit.transform.gameObject == target.gameObject) //Check that we're hitting an actual player
+            if (hit.collider.gameObject == target.gameObject) //Check that we're hitting an actual player
             {
-                Debug.DrawLine(pos, dir, Color.yellow, Mathf.Infinity);
-
+                Debug.DrawRay(pos, dir * hit.distance);
+                print(hit.transform.gameObject.name);
                 return false;
             }
         }
