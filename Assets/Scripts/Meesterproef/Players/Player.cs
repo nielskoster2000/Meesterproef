@@ -36,6 +36,11 @@ public class Player : MonoBehaviour
         cam = player.GetComponentInChildren<Camera>();
         charcontroller = player.GetComponent<CharacterController>();
         movementdirection = Vector3.zero;
+
+        //Set the user name to the one the user has assigned in the settings page
+        SetUserName();
+
+        //Lock the cursor
         LockCursor(true);
     }
 
@@ -105,8 +110,16 @@ public class Player : MonoBehaviour
             Cursor.lockState = (CursorLockMode)(System.Convert.ToInt32(boolean));
         }
 
-        print(Cursor.lockState);
+        //print(Cursor.lockState);
         Cursor.visible = boolean;
-        print(Cursor.visible);
+        //print(Cursor.visible);
+    }
+
+    void SetUserName()
+    {
+        if (TryGetComponent<Humanoid>(out Humanoid humanoid))
+        {
+            humanoid.username = Settings.username;
+        }
     }
 }

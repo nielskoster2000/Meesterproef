@@ -8,12 +8,14 @@ public class Settings : MonoBehaviour
     List<FieldInfo> options = new List<FieldInfo>();
 
     //Inspector values
+    [SerializeField] string _username;
     [SerializeField] float _mouseSens;
     [SerializeField] float _volume;
     [SerializeField] bool _equipOnPickup;
     [SerializeField] bool _keepCursorInApplicationWindow;
 
     //Statics
+    public static string username;
     public static float mouseSens;
     public static float volume;
     public static bool equipOnPickup;
@@ -25,7 +27,7 @@ public class Settings : MonoBehaviour
     {
         SetStatics();
 
-        if (PlayerPrefs.HasKey("mouseSens"))
+        if (PlayerPrefs.HasKey("username"))
         {
             LoadFromPlayerPrefs();
         }
@@ -58,16 +60,16 @@ public class Settings : MonoBehaviour
             switch (System.Type.GetTypeCode(fieldinfo.FieldType))
             {
                 case System.TypeCode.Boolean:
-                    PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)));
+                    fieldinfo.SetValue(fieldinfo, System.Convert.ToBoolean(PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)))));
                     break;
                 case System.TypeCode.Int32:
-                    PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)));
+                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this))));
                     break;
                 case System.TypeCode.String:
-                    PlayerPrefs.GetString(fieldinfo.Name, System.Convert.ToString(fieldinfo.GetValue(this)));
+                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetString(fieldinfo.Name, System.Convert.ToString(fieldinfo.GetValue(this))));
                     break;
                 case System.TypeCode.Single:
-                    PlayerPrefs.GetFloat(fieldinfo.Name, System.Convert.ToSingle(fieldinfo.GetValue(this)));
+                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetFloat(fieldinfo.Name, System.Convert.ToSingle(fieldinfo.GetValue(this))));
                     break;
                 default:
                     Debug.LogWarning(fieldinfo.Name + " with fieldtype " + fieldinfo.FieldType + " did not load correctly from playerprefs! ");
@@ -75,7 +77,7 @@ public class Settings : MonoBehaviour
             }
         }
 
-        print("Loaded from player prefs");
+        print("Loaded settings from player prefs");
     }
 
     void SaveToPlayerPrefs()
@@ -104,7 +106,7 @@ public class Settings : MonoBehaviour
 
         PlayerPrefs.Save();
 
-        print("Saved to player prefs");
+        print("Saved new settings to player prefs");
     }
 
     public static void PauseGame(bool boolean)

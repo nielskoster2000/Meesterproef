@@ -14,7 +14,6 @@ public class Combat : Ability
     //[SerializeField] float eyeDistance = 0.1f;
     public List<Transform> raycastpoints = new List<Transform>();
 
-
     private void Start()
     {
         GetPlayers();
@@ -66,7 +65,6 @@ public class Combat : Ability
             if (hit.collider.gameObject == target.gameObject) //Check that we're hitting an actual player
             {
                 Debug.DrawRay(pos, dir * hit.distance);
-                print(hit.transform.gameObject.name);
                 return false;
             }
         }

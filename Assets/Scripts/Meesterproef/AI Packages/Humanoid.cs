@@ -5,11 +5,11 @@ using System;
 
 public class Humanoid : MonoBehaviour
 {
-    string username;
+    [HideInInspector] public string username;
     int health;
     Vector2 stats;
-    Collider collider;
-    List<Transform> scanPoints = new List<Transform>();
+    List<Vector3> scanPoints = new List<Vector3>();
+    Inventory inventory = new Inventory();
 
     public int Health
     {
@@ -27,16 +27,25 @@ public class Humanoid : MonoBehaviour
         stats.y += amount;
     }
 
-
-
     public Humanoid(string name, List<Ability> abilities)
     {
-        if (abilities != null)
-        {
-            foreach (Ability ability in abilities)
-            {
-                Ability a = gameObject.AddComponent(ability.GetType()) as Ability;
-            }
-        }
+        //if (abilities != null)
+        //{
+        //    foreach (Ability ability in abilities)
+        //    {
+        //        Ability a = gameObject.AddComponent(ability.GetType()) as Ability;
+        //    }
+        //}
+    }
+
+    private void Awake()
+    {
+        SetupScanPoints();
+    }
+
+    void SetupScanPoints()
+    {
+        Collider collider = gameObject.GetComponent<Collider>();
+        //Do more stuff
     }
 }
