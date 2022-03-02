@@ -143,7 +143,7 @@ GameObject:
   - component: {fileID: 1719889824669931635}
   - component: {fileID: 1719889824669931663}
   - component: {fileID: 6776726716234921049}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -347,7 +347,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5192249740192341723}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
