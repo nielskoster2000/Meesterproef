@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 9014192791381560372}
   - component: {fileID: 7070523346514894295}
   - component: {fileID: 5833932606472340952}
-  - component: {fileID: 4723641979579960409}
+  - component: {fileID: 3781791232590782378}
   - component: {fileID: 1024066266599396326}
   m_Layer: 8
   m_Name: Player
@@ -288,7 +288,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4723641979579960409
+--- !u!114 &3781791232590782378
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -297,10 +297,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4028417502600688240}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5031e6abe593dc45b0e8a5ba981ce11, type: 3}
+  m_Script: {fileID: 11500000, guid: 7508e759e629eea47bf8042183e829e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapons: []
 --- !u!114 &1024066266599396326
 MonoBehaviour:
   m_ObjectHideFlags: 0

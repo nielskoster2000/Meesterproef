@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+public class Inventory : Ability
 {
     [SerializeField] List<GameObject> weapons = new List<GameObject>();
     int selectedWeapon;

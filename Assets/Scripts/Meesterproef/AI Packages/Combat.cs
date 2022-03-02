@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Combat : MonoBehaviour
+public class Combat : Ability
 {
     //Objects
     Camera cam;
@@ -12,12 +12,14 @@ public class Combat : MonoBehaviour
     //Variables
     //[SerializeField] int health = 100;
     //[SerializeField] float eyeDistance = 0.1f;
+    public List<Transform> raycastpoints = new List<Transform>();
 
 
     private void Start()
     {
         GetPlayers();
         cam = GetComponentInChildren<Camera>();
+        gameObject.AddComponent<Humanoid>();
     }
 
     void GetPlayers()
