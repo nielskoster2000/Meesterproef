@@ -8,12 +8,13 @@ public class Navigation : MonoBehaviour
     NavPoint currentNavPoint = null;
     NavPoint targetNavPoint = null;
     NavMeshAgent navMeshAgent = null;
-    [SerializeField] int travelQueueBuffer = 1; 
+    [SerializeField] int travelQueueBuffer = 5; 
     Queue<NavPoint> traveledNavPoints = new Queue<NavPoint>();
 
     private void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        SetNewTarget();
     }
 
     private void Update()
@@ -27,7 +28,10 @@ public class Navigation : MonoBehaviour
 
             if (TargetReached())
             {
-                traveledNavPoints.Enqueue(targetNavPoint);
+                if (!traveledNavPoints.Contains(targetNavPoint))
+                {
+                    traveledNavPoints.Enqueue(targetNavPoint);
+                }
 
                 if (traveledNavPoints.Count > travelQueueBuffer)
                 {
@@ -35,7 +39,7 @@ public class Navigation : MonoBehaviour
                 }
 
                 currentNavPoint = targetNavPoint;
-                SetNewTarget();
+                SetNewTargetAccordingToPath();
             }
         }
         else
@@ -67,6 +71,21 @@ public class Navigation : MonoBehaviour
                 currentNavPoint = targetNavPoint;
             }
         }
+    }
+
+    void SetNewTargetAccordingToPath(int tried = 0)
+    {
+        NavPoint destination = currentNavPoint.connections[Random.Range(0, currentNavPoint.connections.Count)];
+        if (traveledNavPoints.Contains(destination) || tried < currentNavPoint.connections.Count)
+        {
+            SetNewTargetAccordingToPath(tried + 1);
+        }
+        else
+        {
+            targetNavPoint = destination;
+        }
+
+        navMeshAgent.destination = targetNavPoint.transform.position;
     }
 
     bool TargetReached()

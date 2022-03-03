@@ -44,6 +44,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sphereColor: {r: 1, g: 0, b: 0, a: 1}
-  connectionsColor: {r: 1, g: 1, b: 1, a: 1}
   sphereSize: 0.2
   connections: []
