@@ -18,7 +18,6 @@ public class Combat : Ability
     {
         GetPlayers();
         cam = GetComponentInChildren<Camera>();
-        gameObject.AddComponent<Humanoid>();
     }
 
     void GetPlayers()

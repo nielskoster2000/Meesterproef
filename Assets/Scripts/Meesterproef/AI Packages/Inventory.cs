@@ -2,59 +2,60 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+[System.Serializable]
+public class Inventory 
 {
-    [SerializeField] List<GameObject> weapons = new List<GameObject>();
+    [SerializeField] public List<GameObject> weapons = new List<GameObject>();
     int selectedWeapon;
     GameObject hand;
 
-    private void Start()
+    public Inventory(GameObject hand)
     {
-        hand = transform.Find("Hand").gameObject;
+        this.hand = hand;
     }
 
-    public void Pickup(GameObject weapon)
+    public void Pickup(GameObject item, bool isPlayer = false)
     {
-        if (!weapons.Contains(weapon))
+        if (!weapons.Contains(item)) //If this inventory does not yet contain such a weapon...
         {
-            weapons.Add(weapon);
-            if (gameObject.CompareTag("Player") && Settings.equipOnPickup)
+            weapons.Add(item); //We add it to the inventory...
+            if (isPlayer && Settings.equipOnPickup) //And we check if the player prefers to automatically equip picked up weapons
             {
-                Equip(weapon);
+                Equip(item);
             }
         }
-        else
+        else //If the weapon is already in this inventory...
         {
             foreach (GameObject w in weapons)
             {
-                if (weapon == w)
+                if (item == w)
                 {
                     Weapon wComponent = w.GetComponent<Weapon>();
-                    wComponent.AddAmmo(wComponent.ammoPickupAmount);
+                    wComponent.AddAmmo(wComponent.ammoPickupAmount); //We add the weapon's ammo pickup amount to the ammo of the weapon that we're actually using
                 }
             }
         }
     }
 
-    public void Equip(GameObject inventoryweapon)
+    public void Equip(GameObject item)
     {
-        if (inventoryweapon.activeSelf)
+        if (item.activeSelf)
         {
-            inventoryweapon.SetActive(true);
+            item.SetActive(true);
         }
 
-        GameObject weapon = GameObject.Instantiate(inventoryweapon);
+        GameObject instance = GameObject.Instantiate(item);
 
-        weapon.transform.position = hand.transform.position;
-        weapon.transform.rotation = hand.transform.rotation;
-        weapon.transform.parent = hand.transform;
+        instance.transform.position = hand.transform.position;
+        instance.transform.rotation = hand.transform.rotation;
+        instance.transform.parent = hand.transform;
     }
 
-    public void UnEquip(GameObject weapon)
+    public void UnEquip(GameObject instance)
     {
-        if (weapon.activeSelf)
+        if (instance.activeSelf)
         {
-            Destroy(weapon);
+            Object.Destroy(instance);
         }
     }
 }

@@ -1,17 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class Humanoid : MonoBehaviour
 {
     [HideInInspector] public string username;
+    bool isHuman = false;
     int health;
     Vector2 stats;
     List<Vector3> scanPoints = new List<Vector3>();
-    Inventory inventory = new Inventory();
+    Inventory inventory;
 
-    public int Health
+    public int Healthd
     {
         get { return health; }
         set { health = Mathf.Clamp(value, 0, 100); }
@@ -27,6 +26,17 @@ public class Humanoid : MonoBehaviour
         stats.y += amount;
     }
 
+    public Inventory GetInventory()
+    {
+        return inventory;
+    }
+
+    public bool IsHuman
+    {
+        get { return isHuman; }
+        private set { isHuman = value; }
+    }
+
     public Humanoid(string name, List<Ability> abilities)
     {
         //if (abilities != null)
@@ -40,6 +50,9 @@ public class Humanoid : MonoBehaviour
 
     private void Awake()
     {
+        GameObject hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
+        IsHuman = gameObject.CompareTag("Player");
+        inventory = new Inventory(hand);
         SetupScanPoints();
     }
 
