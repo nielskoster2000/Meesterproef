@@ -10,11 +10,16 @@ public class Weapon : Item
         ranged
     }
 
+    [Header("A higher rank means that bots prefer that weapon more")]
+    [SerializeField] int rank;
+
+    [Space]
+
     [SerializeField] bool automatic;
     [SerializeField] Type type;
     [SerializeField] int ammo;
     [SerializeField] float cooldownTime;
-    [SerializeField] bool cooldown;
+    bool cooldown;
     [SerializeField] int damage;
     [SerializeField] public int ammoPickupAmount;
 
@@ -39,28 +44,29 @@ public class Weapon : Item
 
     public override void Use()
     {
-        if (ammo > 0 && cooldown)
+        if (ammo > 0 && !cooldown)
         {
             switch (type)
             {
                 case Type.melee:
+                    //Do melee stuff
                     break;
                 case Type.ranged:
+                    ammo--;
                     break;
                 default:
                     break;
             }
 
-            ammo--;
             StartCoroutine(Cooldown());
         }
     }
 
     public virtual IEnumerator Cooldown()
     {
-        cooldown = false;
-        yield return new WaitForSeconds(cooldownTime);
         cooldown = true;
+        yield return new WaitForSeconds(cooldownTime);
+        cooldown = false;
     }
 
     public void AddAmmo(int amount)
