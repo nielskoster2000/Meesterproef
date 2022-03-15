@@ -8,13 +8,15 @@ public class Navigation : MonoBehaviour
     NavPoint currentNavPoint = null;
     NavPoint targetNavPoint = null;
     NavMeshAgent navMeshAgent = null;
-    [SerializeField] int travelQueueBuffer = 5; 
+    [SerializeField] int travelQueueBuffer;
     Queue<NavPoint> traveledNavPoints = new Queue<NavPoint>();
+    Combat combatPackage;
 
     private void Start()
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
-        SetNewTarget();
+        navMeshAgent = gameObject.transform.parent.GetComponent<NavMeshAgent>();
+        combatPackage = GetComponent<Combat>();
+        SetClosestTarget();
     }
 
     private void Update()
@@ -26,21 +28,15 @@ public class Navigation : MonoBehaviour
                 navMeshAgent.enabled = true;
             }
 
-            if (TargetReached())
+            if (!combatPackage.combat) //If combat is not active
             {
-                if (!traveledNavPoints.Contains(targetNavPoint))
-                {
-                    traveledNavPoints.Enqueue(targetNavPoint);
-                }
-
-                if (traveledNavPoints.Count > travelQueueBuffer)
-                {
-                    traveledNavPoints.Dequeue();
-                }
-
-                currentNavPoint = targetNavPoint;
-                SetNewTargetAccordingToPath();
+                Pathfinding();
             }
+            else
+            {
+                CombatMovement();
+            }
+                    
         }
         else
         {
@@ -48,7 +44,32 @@ public class Navigation : MonoBehaviour
         }
     }
 
-   void SetNewTarget()
+    public void Pathfinding()
+    {
+        if (TargetReached())
+        {
+            if (!traveledNavPoints.Contains(targetNavPoint))
+            {
+                traveledNavPoints.Enqueue(targetNavPoint);
+            }
+
+            if (traveledNavPoints.Count > travelQueueBuffer)
+            {
+                traveledNavPoints.Dequeue();
+            }
+
+            currentNavPoint = targetNavPoint;
+            SetNewTargetAccordingToPath();
+        }
+    }
+
+    public void CombatMovement()
+    {
+        //Combat navigation here
+        navMeshAgent.destination = gameObject.transform.position;
+    }
+
+   void SetClosestTarget()
     {
         float closestDistance = 999999f;
 
@@ -76,7 +97,7 @@ public class Navigation : MonoBehaviour
     void SetNewTargetAccordingToPath(int tried = 0)
     {
         NavPoint destination = currentNavPoint.connections[Random.Range(0, currentNavPoint.connections.Count)];
-        if (traveledNavPoints.Contains(destination) || tried < currentNavPoint.connections.Count)
+        if (traveledNavPoints.Contains(destination) && tried < destination.connections.Count)
         {
             SetNewTargetAccordingToPath(tried + 1);
         }

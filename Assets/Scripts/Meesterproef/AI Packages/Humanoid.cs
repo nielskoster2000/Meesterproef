@@ -4,13 +4,12 @@ using UnityEngine;
 public class Humanoid : MonoBehaviour
 {
     [HideInInspector] public string username;
-    bool isHuman = false;
     int health;
     Vector2 stats;
-    List<Vector3> scanPoints = new List<Vector3>();
-    Inventory inventory;
+    Bounds bounds;
 
-    public int Healthd
+
+    public int Health
     {
         get { return health; }
         set { health = Mathf.Clamp(value, 0, 100); }
@@ -26,16 +25,16 @@ public class Humanoid : MonoBehaviour
         stats.y += amount;
     }
 
-    public Inventory GetInventory()
+    public bool IsHuman { get; private set; } = false;
+    public Bounds Bounds { get { return bounds; }  private set { bounds = value; } }
+
+    public Camera cam
     {
-        return inventory;
+        get; private set; 
     }
 
-    public bool IsHuman
-    {
-        get { return isHuman; }
-        private set { isHuman = value; }
-    }
+    public Inventory Inventory { get; private set; } 
+
 
     public Humanoid(string name, List<Ability> abilities)
     {
@@ -52,13 +51,10 @@ public class Humanoid : MonoBehaviour
     {
         GameObject hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
         IsHuman = gameObject.CompareTag("Player");
-        inventory = new Inventory(hand);
-        SetupScanPoints();
-    }
+        Inventory = new Inventory(hand);
+        cam = GetComponentInChildren<Camera>();
 
-    void SetupScanPoints()
-    {
-        Collider collider = gameObject.GetComponent<Collider>();
-        //Do more stuff
+        if (IsHuman) Bounds = GetComponent<CharacterController>().bounds;
+       else Bounds = GetComponent<CapsuleCollider>().bounds;
     }
 }

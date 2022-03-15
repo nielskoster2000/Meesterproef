@@ -6,44 +6,47 @@ public class Combat : Ability
 {
     //Objects
     Camera cam;
-    List<CapsuleCollider> players = new List<CapsuleCollider>();
+    Humanoid humanoid;
+    public List<Humanoid> players = new List<Humanoid>();
     public bool combat = false;
 
     //Variables
-    //[SerializeField] int health = 100;
-    //[SerializeField] float eyeDistance = 0.1f;
+    [SerializeField] int health = 100;
+
     public List<Transform> raycastpoints = new List<Transform>();
 
     private void Start()
     {
         GetPlayers();
         cam = GetComponentInChildren<Camera>();
+        humanoid = GetComponent<Humanoid>();
     }
 
     void GetPlayers()
     {
         players.Clear();
-        players = new List<CapsuleCollider>(gameObject.transform.parent.GetComponentsInChildren<CapsuleCollider>());
+        players = new List<Humanoid>(gameObject.transform.parent.parent.GetComponentsInChildren<Humanoid>());
     }
 
     private void Update()
     {
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
 
-        foreach (CapsuleCollider player in players)
+        foreach (Humanoid player in players)
         {
             if (player.gameObject != gameObject)
             {
                 player.gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
                 combat = false;
 
-                if (GeometryUtility.TestPlanesAABB(planes, player.bounds)) //Is a player in the camera's view?
+                if (GeometryUtility.TestPlanesAABB(planes, player.Bounds)) //Is a player in the camera's view?
                 {
                     if (!IsObstructed(player.gameObject))
                     {
                         //Do stuff here
                         player.GetComponent<MeshRenderer>().material.color = Color.red;
                         combat = true;
+                        FightOpponent(player);
                         break;
                     }
                 }
@@ -57,8 +60,6 @@ public class Combat : Ability
         Vector3 pos = cam.transform.position + (target.transform.right * eyeOffset);
         Vector3 dir = (target.transform.position - pos).normalized;
 
-
-
         if (Physics.Raycast(pos, dir, out hit, Mathf.Infinity)) //Send raycast to check if the player in the camera's view isn't behind a wall or other obstruction
         {
             if (hit.collider.gameObject == target.gameObject) //Check that we're hitting an actual player
@@ -69,5 +70,11 @@ public class Combat : Ability
         }
 
         return true;
+    }
+
+    public void FightOpponent(Humanoid opponent)
+    {
+        humanoid.gameObject.transform.LookAt(opponent.gameObject.transform);
+        //pew pew
     }
 }
