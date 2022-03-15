@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     {
         playersParent = GameObject.Find("Players");
         SpawnBot("Steve", new Vector3(-1.5f, -0.15f, -3f), Vector3.zero);
-        SpawnBot("Micheal", new Vector3(10f, -0.15f, -1f), Vector3.zero);
+        //SpawnBot("Micheal", new Vector3(10f, -0.15f, -1f), Vector3.zero);
     }
 
     private void SpawnBots(int botcount)
@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 
     private void SpawnBot(string botname = "bot", Vector3 pos = default(Vector3), Vector3 rotation = default(Vector3))
     {
-        GameObject bot = Instantiate<GameObject>(Resources.Load<GameObject>("Bot"));
+        GameObject bot = Instantiate<GameObject>(Resources.Load<GameObject>("Bot_root"));
 
         //Add bot to players 
         bot.transform.parent = playersParent.transform;
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
         bot.GetComponentInChildren<Camera>().targetDisplay = botCount + 1;
 
         //Set name
-        bot.GetComponent<Humanoid>().username = botname;
+        bot.GetComponentInChildren<Humanoid>().username = botname;
 
         //Set pos and rotation
         if (pos != null) { bot.transform.position = pos; } else { bot.transform.position = default(Vector3); }
