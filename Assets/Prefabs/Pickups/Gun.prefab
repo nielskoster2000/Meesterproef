@@ -112,7 +112,7 @@ MonoBehaviour:
   rank: 0
   automatic: 1
   type: 1
-  ammo: 550
+  ammo: 600
   cooldownTime: 0.1
   damage: 5
   ammoPickupAmount: 50
