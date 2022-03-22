@@ -7,7 +7,8 @@ public class Weapon : Item
     public enum Type
     {
         melee,
-        ranged
+        ranged,
+        projectile
     }
 
     [Header("A higher rank means that bots prefer that weapon more")]
@@ -52,7 +53,15 @@ public class Weapon : Item
                     //Do melee stuff
                     break;
                 case Type.ranged:
+                    ActivateWeaponEffects();
                     ammo--;
+                    print("Pew! Ammo is now " + ammo);
+                    break;
+                case Type.projectile:
+                    ActivateWeaponEffects();
+                    //Shoot projectile
+                    ammo--;
+                    print("Pew! Ammo is now " + ammo);
                     break;
                 default:
                     break;
@@ -72,5 +81,12 @@ public class Weapon : Item
     public void AddAmmo(int amount)
     {
         ammo += amount;
+    }
+
+    private void ActivateWeaponEffects()
+    {
+        //Start particle system
+        //Start audio
+        //Start animation
     }
 }
