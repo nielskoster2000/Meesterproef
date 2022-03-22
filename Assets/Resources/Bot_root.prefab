@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40f315530a3e1f54d952a1a7ec38c364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  travelQueueBuffer: 2
+  travelQueueBuffer: 3
 --- !u!114 &2927836930778502342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,6 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6762a34c57b696345a7006f312e4b73e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  players: []
   combat: 0
   health: 100
   raycastpoints: []
@@ -388,17 +389,17 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Speed: 6
+  m_Acceleration: 20
   avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_AngularSpeed: 200
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0
-  m_WalkableMask: 4294967295
+  m_WalkableMask: 5
   m_ObstacleAvoidanceType: 4
 --- !u!1 &7888790240849787155
 GameObject:
