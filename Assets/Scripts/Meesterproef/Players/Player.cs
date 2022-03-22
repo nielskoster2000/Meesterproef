@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     GameObject player = null;
     Camera cam = null;
     CharacterController charcontroller = null;
+    //AudioSource walkAudio;
 
     //Movement & Speed
     [SerializeField] float walkspeed = 4;
@@ -35,6 +36,7 @@ public class Player : MonoBehaviour
         player = gameObject;
         cam = player.GetComponentInChildren<Camera>();
         charcontroller = player.GetComponent<CharacterController>();
+        //walkAudio = player.GetComponent<AudioSource>();
         movementdirection = Vector3.zero;
 
         //Set the user name to the one the user has assigned in the settings page
@@ -72,6 +74,25 @@ public class Player : MonoBehaviour
                 verticalSpeed = jumpforce; //Make the player "jump"
             }
         }
+
+        //Work on this later
+  /*      if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+        {
+            if (!walkAudio.isPlaying)
+            {
+                walkAudio.Play();
+                print("walkaudio.play");
+            }
+
+            if (!charcontroller.isGrounded)
+            {
+                walkAudio.Stop();
+            }
+        }
+        else
+        {
+            walkAudio.Stop();
+        }*/
 
         //Gravity's pull means that the vertical jump speed will decrease, and go into the negative, pulling the player back to the surface
         verticalSpeed -= gravity * Time.deltaTime;
