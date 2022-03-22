@@ -9,6 +9,7 @@ public class Combat : Ability
     Humanoid humanoid;
     public List<Humanoid> players = new List<Humanoid>();
     public bool combat = false;
+    float aimAccuracy = 5f; //The lower the value, the more accurate the bot
 
     //Variables
     [SerializeField] int health = 100;
@@ -38,6 +39,7 @@ public class Combat : Ability
             {
                 player.gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
                 combat = false;
+                cam.transform.rotation = gameObject.transform.rotation;
 
                 if (GeometryUtility.TestPlanesAABB(planes, player.Bounds)) //Is a player in the camera's view?
                 {
@@ -69,12 +71,19 @@ public class Combat : Ability
             }
         }
 
+
         return true;
     }
 
     public void FightOpponent(Humanoid opponent)
     {
-        humanoid.gameObject.transform.LookAt(opponent.gameObject.transform);
+        //Aim
+        Vector3 aimOffset = new Vector3(Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy));
+        transform.parent.LookAt(opponent.transform.position);
+        transform.parent.rotation = Quaternion.Euler(transform.parent.rotation.x, transform.parent.rotation.y, /*transform.parent.rotation.z*/ 0 );
+
+        
         //pew pew
+        
     }
 }

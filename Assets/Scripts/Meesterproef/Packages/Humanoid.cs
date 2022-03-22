@@ -8,7 +8,6 @@ public class Humanoid : MonoBehaviour
     Vector2 stats;
     Bounds bounds;
 
-
     public int Health
     {
         get { return health; }

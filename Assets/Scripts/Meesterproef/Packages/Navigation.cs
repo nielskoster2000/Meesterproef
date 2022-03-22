@@ -36,7 +36,6 @@ public class Navigation : MonoBehaviour
             {
                 CombatMovement();
             }
-                    
         }
         else
         {
