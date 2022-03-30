@@ -25,19 +25,20 @@ public class Settings : MonoBehaviour
 
     private void Start()
     {
-        SetStatics();
+        SetOptions();
 
-        if (PlayerPrefs.HasKey("username"))
+        if (RequireSave())
         {
-            LoadFromPlayerPrefs();
+            print("A save was required, saving now...");
+            SaveToPlayerPrefs(); 
         }
         else
         {
-            SaveToPlayerPrefs();
+            LoadFromPlayerPrefs();
         }
     }
 
-    void SetStatics()
+    void SetOptions()
     {
         FieldInfo[] settings = typeof(Settings).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -53,53 +54,26 @@ public class Settings : MonoBehaviour
         }
     }
 
-    void LoadFromPlayerPrefs()
-    {
-        foreach (FieldInfo fieldinfo in options)
-        {
-            switch (System.Type.GetTypeCode(fieldinfo.FieldType))
-            {
-                case System.TypeCode.Boolean:
-                    fieldinfo.SetValue(fieldinfo, System.Convert.ToBoolean(PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)))));
-                    break;
-                case System.TypeCode.Int32:
-                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this))));
-                    break;
-                case System.TypeCode.String:
-                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetString(fieldinfo.Name, System.Convert.ToString(fieldinfo.GetValue(this))));
-                    break;
-                case System.TypeCode.Single:
-                    fieldinfo.SetValue(fieldinfo, PlayerPrefs.GetFloat(fieldinfo.Name, System.Convert.ToSingle(fieldinfo.GetValue(this))));
-                    break;
-                default:
-                    Debug.LogWarning(fieldinfo.Name + " with fieldtype " + fieldinfo.FieldType + " did not load correctly from playerprefs! ");
-                    break;
-            }
-        }
-
-        print("Loaded settings from player prefs");
-    }
-
     void SaveToPlayerPrefs()
     {
-        foreach (FieldInfo fieldinfo in options)
+        foreach (FieldInfo fieldInfo in options)
         {
-            switch (System.Type.GetTypeCode(fieldinfo.FieldType))
+            switch (System.Type.GetTypeCode(fieldInfo.FieldType))
             {
                 case System.TypeCode.Boolean:
-                    PlayerPrefs.SetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)));
+                    PlayerPrefs.SetInt(fieldInfo.Name, System.Convert.ToInt32(fieldInfo.GetValue(this)));
                     break;
                 case System.TypeCode.Int32:
-                    PlayerPrefs.SetInt(fieldinfo.Name, System.Convert.ToInt32(fieldinfo.GetValue(this)));
+                    PlayerPrefs.SetInt(fieldInfo.Name, System.Convert.ToInt32(fieldInfo.GetValue(this)));
                     break;
                 case System.TypeCode.String:
-                    PlayerPrefs.SetString(fieldinfo.Name, System.Convert.ToString(fieldinfo.GetValue(this)));
+                    PlayerPrefs.SetString(fieldInfo.Name, System.Convert.ToString(fieldInfo.GetValue(this)));
                     break;
                 case System.TypeCode.Single:
-                    PlayerPrefs.SetFloat(fieldinfo.Name, System.Convert.ToSingle(fieldinfo.GetValue(this)));
+                    PlayerPrefs.SetFloat(fieldInfo.Name, System.Convert.ToSingle(fieldInfo.GetValue(this)));
                     break;
                 default:
-                    Debug.LogWarning(fieldinfo.Name + " with fieldtype " + fieldinfo.FieldType + " did not save correctly to playerprefs! ");
+                    Debug.LogWarning(fieldInfo.Name + " with fieldtype " + fieldInfo.FieldType + " did not save correctly to playerprefs! ");
                     break;
             }
         }
@@ -107,6 +81,64 @@ public class Settings : MonoBehaviour
         PlayerPrefs.Save();
 
         print("Saved new settings to player prefs");
+    }
+
+
+    void LoadFromPlayerPrefs()
+    {
+        foreach (FieldInfo fieldInfo in options)
+        {
+            switch (System.Type.GetTypeCode(fieldInfo.FieldType))
+            {
+                case System.TypeCode.Boolean:
+                    fieldInfo.SetValue(fieldInfo, System.Convert.ToBoolean(PlayerPrefs.GetInt(fieldInfo.Name, System.Convert.ToInt32(fieldInfo.GetValue(this)))));
+                    break;
+                case System.TypeCode.Int32:
+                    fieldInfo.SetValue(fieldInfo, PlayerPrefs.GetInt(fieldInfo.Name, System.Convert.ToInt32(fieldInfo.GetValue(this))));
+                    break;
+                case System.TypeCode.String:
+                    fieldInfo.SetValue(fieldInfo, PlayerPrefs.GetString(fieldInfo.Name, System.Convert.ToString(fieldInfo.GetValue(this))));
+                    break;
+                case System.TypeCode.Single:
+                    fieldInfo.SetValue(fieldInfo, PlayerPrefs.GetFloat(fieldInfo.Name, System.Convert.ToSingle(fieldInfo.GetValue(this))));
+                    break;
+                default:
+                    Debug.LogWarning(fieldInfo.Name + " with fieldtype " + fieldInfo.FieldType + " did not load correctly from playerprefs! ");
+                    break;
+            }
+        }
+
+        print("Loaded settings from player prefs");
+    }
+
+    bool RequireSave()
+    {
+        foreach (FieldInfo fieldInfo in options)
+        {
+            if (PlayerPrefs.HasKey(fieldInfo.Name))
+            {
+                switch (System.Type.GetTypeCode(fieldInfo.FieldType))
+                {
+                    case System.TypeCode.Boolean:
+                        if (PlayerPrefs.GetInt(fieldInfo.Name) != System.Convert.ToInt32(fieldInfo.GetValue(this))) { return true; }
+                        break;
+                    case System.TypeCode.Int32:
+                        if (PlayerPrefs.GetInt(fieldInfo.Name) != System.Convert.ToInt32(fieldInfo.GetValue(this))) { return true; }
+                        break;
+                    case System.TypeCode.String:
+                        if (PlayerPrefs.GetString(fieldInfo.Name) != System.Convert.ToString(fieldInfo.GetValue(this))) { return true; }
+                        break;
+                    case System.TypeCode.Single:
+                        if (PlayerPrefs.GetFloat(fieldInfo.Name) != System.Convert.ToSingle(fieldInfo.GetValue(this))) { return true; }
+                        break;
+                    default:
+                        Debug.LogWarning(fieldInfo.Name + " with fieldtype " + fieldInfo.FieldType + " did specify any of the accepted parameters for playerprefs! ");
+                        break;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static void PauseGame(bool boolean)
