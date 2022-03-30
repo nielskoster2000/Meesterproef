@@ -95,7 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _name: 
-  inventorySlotPosition: 4
+  inventorySlotPosition: 3
+  icon: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   rank: 0
   automatic: 0
   type: 2

@@ -126,11 +126,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _name: 
-  inventorySlotPosition: 5
+  inventorySlotPosition: 4
+  icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   rank: 0
   automatic: 0
   type: 1
-  ammo: 20
+  ammo: 40
   cooldownTime: 1
   damage: 100
   ammoPickupAmount: 10

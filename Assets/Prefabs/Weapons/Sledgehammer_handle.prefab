@@ -57,13 +57,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6476833031094577034}
-  m_LocalRotation: {x: -0, y: -0.70710707, z: -0, w: 0.70710653}
-  m_LocalPosition: {x: -0.067023, y: -0.51684, z: 0.057362}
+  m_LocalRotation: {x: -0.5, y: -0.5000005, z: 0.4999995, w: 0.50000006}
+  m_LocalPosition: {x: 0.264, y: 0.513, z: 0.783}
   m_LocalScale: {x: 3.1384387, y: 3.1384387, z: 3.1384387}
   m_Children: []
   m_Father: {fileID: 3734634809176394057}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 90}
 --- !u!33 &7279609659925197461
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -126,7 +126,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _name: 
-  inventorySlotPosition: 1
+  inventorySlotPosition: 0
+  icon: {fileID: 0}
   rank: 0
   automatic: 0
   type: 0
@@ -134,3 +135,4 @@ MonoBehaviour:
   cooldownTime: 1
   damage: 50
   ammoPickupAmount: 0
+  inHand: 0

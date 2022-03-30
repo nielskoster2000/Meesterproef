@@ -46,7 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _name: 
-  inventorySlotPosition: 3
+  inventorySlotPosition: 2
+  icon: {fileID: 0}
   rank: 0
   automatic: 1
   type: 1
@@ -54,6 +55,7 @@ MonoBehaviour:
   cooldownTime: 0.1
   damage: 15
   ammoPickupAmount: 30
+  inHand: 0
 --- !u!1 &2812039581014587760
 GameObject:
   m_ObjectHideFlags: 0
@@ -63,6 +65,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2812039581014587767}
+  - component: {fileID: 84620102353698990}
   m_Layer: 0
   m_Name: Rifle_handle
   m_TagString: Untagged
@@ -85,6 +88,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &84620102353698990
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2812039581014587760}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3e0e08b7b827e40458775a42752ccb1f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &6374946804245996163
 GameObject:
   m_ObjectHideFlags: 0
