@@ -37,7 +37,7 @@ public class Combat : Ability
         {
             if (player.gameObject != gameObject)
             {
-                player.gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+                player.GetComponent<MeshRenderer>().material.color = Color.green;
                 combat = false;
                 cam.transform.rotation = gameObject.transform.rotation;
 
@@ -45,9 +45,8 @@ public class Combat : Ability
                 {
                     if (!IsObstructed(player.gameObject))
                     {
-                        //Do stuff here
-                        player.GetComponent<MeshRenderer>().material.color = Color.red;
                         combat = true;
+                        player.GetComponent<MeshRenderer>().material.color = Color.red;
                         FightOpponent(player);
                         break;
                     }
@@ -79,10 +78,10 @@ public class Combat : Ability
     {
         //Aim
         Vector3 aimOffset = new Vector3(Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy));
-        transform.parent.LookAt(opponent.transform.position);
-        transform.parent.rotation = Quaternion.Euler(transform.parent.rotation.x, transform.parent.rotation.y, /*transform.parent.rotation.z*/ 0 );
 
-        
+     /*   transform.parent.LookAt(opponent.transform.position);
+        transform.parent.rotation = Quaternion.Euler(transform.parent.rotation.x, transform.parent.rotation.y, *//*transform.parent.rotation.z*//* 0 );*/
+
         //pew pew
         
     }
