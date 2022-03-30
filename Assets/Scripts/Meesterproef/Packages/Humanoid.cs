@@ -32,7 +32,7 @@ public class Humanoid : MonoBehaviour
         get; private set; 
     }
 
-    public Inventory Inventory { get; private set; } 
+    public Inventory Inventory { get; set; } 
 
 
     public Humanoid(string name, List<Ability> abilities)
@@ -50,10 +50,19 @@ public class Humanoid : MonoBehaviour
     {
         GameObject hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
         IsHuman = gameObject.CompareTag("Player");
-        Inventory = new Inventory(hand);
         cam = GetComponentInChildren<Camera>();
 
-        if (IsHuman) Bounds = GetComponent<CharacterController>().bounds;
-       else Bounds = GetComponent<CapsuleCollider>().bounds;
+        if (IsHuman) 
+        { 
+            Bounds = GetComponent<CharacterController>().bounds;
+            Inventory = gameObject.AddComponent<PlayerInventory>();
+        }
+        else 
+        { 
+            Bounds = GetComponent<CapsuleCollider>().bounds;
+            Inventory = gameObject.AddComponent<Inventory>();
+        }
+
+        Inventory.hand = hand;
     }
 }

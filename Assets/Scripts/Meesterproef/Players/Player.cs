@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class Player : MonoBehaviour
     GameObject player = null;
     Camera cam = null;
     CharacterController charcontroller = null;
+    GameObject pausemenu = null;
+    Image crosshair = null;
     //AudioSource walkAudio;
 
     //Movement & Speed
@@ -24,6 +27,7 @@ public class Player : MonoBehaviour
     [Range(10, 100)]
     float yaw;
     float pitch;
+    bool showCursor = false;
 
     //Jumping
     [Header("Jumping options")]
@@ -36,6 +40,10 @@ public class Player : MonoBehaviour
         player = gameObject;
         cam = player.GetComponentInChildren<Camera>();
         charcontroller = player.GetComponent<CharacterController>();
+        crosshair = GameObject.Find("Crosshair").GetComponent<Image>();
+        pausemenu = GameObject.Find("PauseMenu");
+        pausemenu.SetActive(false);
+        
         //walkAudio = player.GetComponent<AudioSource>();
         movementdirection = Vector3.zero;
 
@@ -43,7 +51,7 @@ public class Player : MonoBehaviour
         SetUserName();
 
         //Lock the cursor
-        LockCursor(true);
+        ShowCursor(showCursor);
     }
 
     private void Update()
@@ -54,13 +62,17 @@ public class Player : MonoBehaviour
             CheckMouseInputs();
         }
 
-        //Pause game
-        if (Input.GetKeyDown(KeyCode.Q))
+        //Pause game and show menu
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             Settings.PauseGame(!Settings.gamePaused);
-            LockCursor(!Cursor.visible);
+            ToggleCursor();
+            ShowCursor(showCursor);
+            pausemenu.SetActive(!pausemenu.activeSelf);
+            crosshair.gameObject.SetActive(!crosshair.gameObject.activeSelf);
         }
     }
+
 
     void CheckKeyBoardInputs()
     {
@@ -120,27 +132,37 @@ public class Player : MonoBehaviour
         cam.transform.eulerAngles = new Vector3(pitch, yaw, 0);
     }
 
-    void LockCursor(bool boolean)
-    {
-        if (Settings.keepCursorInApplicationWindow)
-        {
-            Cursor.lockState = (CursorLockMode)(System.Convert.ToInt32(boolean) + 1);
-        }
-        else
-        {
-            Cursor.lockState = (CursorLockMode)(System.Convert.ToInt32(boolean));
-        }
-
-        //print(Cursor.lockState);
-        Cursor.visible = boolean;
-        //print(Cursor.visible);
-    }
-
     void SetUserName()
     {
         if (TryGetComponent<Humanoid>(out Humanoid humanoid))
         {
             humanoid.username = Settings.username;
         }
+    }
+
+    public void ShowCursor(bool boolean)
+    {
+        Cursor.visible = boolean;
+
+        if (boolean == true)
+        {
+            if (Settings.keepCursorInApplicationWindow)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    public void ToggleCursor()
+    {
+        showCursor = !showCursor;
     }
 }
