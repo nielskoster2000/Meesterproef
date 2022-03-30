@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Weapon : Item
 {
+    public Sprite icon;
+
     public enum Type
     {
         melee,
@@ -23,24 +26,34 @@ public class Weapon : Item
     bool cooldown;
     [SerializeField] int damage;
     [SerializeField] public int ammoPickupAmount;
+    [HideInInspector] public bool inHand = false;
+
+    int humanoidLayer;
+
+    void Start()
+    {
+        humanoidLayer = LayerMask.GetMask("Humanoid");
+    }
 
     private void Update()
     {
-        if (automatic)
+        if (inHand)
         {
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (automatic)
             {
-                Use();
+                if (Input.GetKey(KeyCode.Mouse0))
+                {
+                    Use();
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    Use();
+                }
             }
         }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                Use();
-            }
-        }
-
     }
 
     public override void Use()
@@ -54,14 +67,13 @@ public class Weapon : Item
                     break;
                 case Type.ranged:
                     ActivateWeaponEffects();
+                    CheckHit();
                     ammo--;
-                    print("Pew! Ammo is now " + ammo);
                     break;
                 case Type.projectile:
                     ActivateWeaponEffects();
                     //Shoot projectile
                     ammo--;
-                    print("Pew! Ammo is now " + ammo);
                     break;
                 default:
                     break;
@@ -88,5 +100,24 @@ public class Weapon : Item
         //Start particle system
         //Start audio
         //Start animation
+    }
+
+    private void CheckHit()
+    {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, humanoidLayer))
+        {
+            if (hit.transform.TryGetComponent<Humanoid>(out Humanoid humanoid))
+            {
+                humanoid.Health -= damage;
+                print("Did damage!");
+            }
+            else
+            {
+                print("Couldn't get component!, hit layer " + LayerMask.LayerToName(hit.transform.gameObject.layer));
+            }
+        }
     }
 }
