@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SpawnBot(string botname = "bot", Vector3 pos = default(Vector3), Vector3 rotation = default(Vector3), List<Item> items = null, int equipItem = -1)
+    private void SpawnBot(string botname = "bot", Vector3 pos = default(Vector3), Vector3 rotation = default(Vector3), List<Item> weapons = null, int equipItem = -1)
     {
         GameObject bot = Instantiate<GameObject>(Resources.Load<GameObject>("Bot_root"));
 
@@ -51,13 +52,22 @@ public class GameManager : MonoBehaviour
             GameObject newItem = Instantiate<GameObject>(item.transform.parent.gameObject);
             botInventory.Pickup(newItem.transform.GetComponentInChildren<Item>());
         }*/
-
+/*
         //If equipItem is set to something higher than -1, we will try to equip the weapon which has been selected by the int in the inventory
-        if (equipItem > -1 && botInventory.items.Contains(items[equipItem]))
+        if (equipItem > -1 && botInventory.weapons.Contains([weapons.equipItem]))
         {
             botInventory.Equip(items[equipItem]);
-        }
+        }*/
        
         botCount++;
+    }
+
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+
+        Application.Quit();
     }
 }
