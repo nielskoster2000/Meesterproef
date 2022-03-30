@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2490940992481103353}
   - component: {fileID: 6619743797020538782}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4601224492085220997}
   - component: {fileID: 4601224492085220996}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Line
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -219,7 +219,7 @@ GameObject:
   - component: {fileID: 8507113782278647248}
   - component: {fileID: 7195072915476982013}
   - component: {fileID: 2927836930778502342}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -357,7 +357,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5859762738319152820}
   - component: {fileID: 7352616636551027207}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bot_root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +410,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6920344067870017362}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
