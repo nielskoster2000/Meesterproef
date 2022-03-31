@@ -2,49 +2,154 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField] List<Level> levels = new List<Level>();
+    [SerializeField] int chosenLevel = 0;
     [SerializeField] int userDefinedBotCount = 0;
+    [SerializeField] int maxPlayerCount = 6; //This is players and bots!
     [SerializeField] List<Humanoid> players = new List<Humanoid>();
+    string[] maleBotNames = new string[] { "Steve", "Maik", "Rik", "John" };
+    string[] femaleBotNames = new string[] { "Charlotte", "Emma", "Noami", "Karen" };
     GameObject playersParent;
 
-    int botCount = 0;
+    int playerCount = 0;
 
     private void Start()
     {
-        playersParent = GameObject.Find("Players");
-        SpawnBot("Steve", new Vector3(-1.5f, -0.15f, -3f), Vector3.zero);
-        SpawnBot("Micheal", new Vector3(10f, -0.15f, -1f), Vector3.zero);
-    }
-
-    private void SpawnBots(int botcount)
-    {
-        for (int i = 0; i < botcount; i++)
+        foreach (GameObject level in Resources.LoadAll<GameObject>("Levels/"))
         {
-            SpawnBot();
+            levels.Add(level.GetComponent<Level>());
         }
     }
 
-    private void SpawnBot(string botname = "bot", Vector3 pos = default(Vector3), Vector3 rotation = default(Vector3), List<Item> weapons = null, int equipItem = -1)
+    public void ChangeBotCount(int amount)
     {
-        GameObject bot = Instantiate<GameObject>(Resources.Load<GameObject>("Bot_root"));
+        userDefinedBotCount += amount;
 
-        //Add bot to players 
-        bot.transform.parent = playersParent.transform;
-        players.Add(bot.GetComponent<Humanoid>());
+        if (userDefinedBotCount < 0)
+        {
+            userDefinedBotCount = 0;
+        }
+        else if (userDefinedBotCount > maxPlayerCount)
+        {
+            userDefinedBotCount = maxPlayerCount;
+        }
+    }
 
-        //Set bot cam target display
-        bot.GetComponentInChildren<Camera>().targetDisplay = botCount + 1;
+    public void UpdateBotCount(Text text)
+    {
+        text.text = userDefinedBotCount.ToString();
+    }
 
-        //Set name
-        bot.GetComponentInChildren<Humanoid>().username = botname;
+    public void UpdateLevelThumbnail(Image image)
+    {
+        image.sprite = levels[chosenLevel].thumbnail;
+    }
+
+    public void UpdateLevelName(Text text)
+    {
+        text.text = levels[chosenLevel].levelName;
+    }
+
+    public void ChangeLevel(int amount)
+    {
+        chosenLevel += amount;
+
+        if (chosenLevel < 0)
+        {
+            chosenLevel = 0;
+        }
+        else if (chosenLevel > levels.Count - 1)
+        {
+            chosenLevel = levels.Count - 1;
+        }
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+
+        if (sceneName != "MainMenu")
+        {
+            SceneManager.sceneLoaded += LoadLevel;
+        }
+    }
+
+    public void LoadLevel(Scene scene, LoadSceneMode mode)
+    {
+        //Load Level
+        string levelString = "Levels/Level" + chosenLevel.ToString();
+        GameObject level = Resources.Load<GameObject>(levelString);
+        Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
+        RenderSettings.skybox = levels[chosenLevel].sky;
+
+        FillLevel();
+    }
+
+    private string GetRandomBotName(bool male)
+    {
+        if (male)
+        {
+            return maleBotNames[Random.Range(0, maleBotNames.Length - 1)];
+        }
+        else
+        {
+            return femaleBotNames[Random.Range(0, femaleBotNames.Length -1)];
+        }
+    }
+
+    public void FillLevel()
+    {
+        //Add players
+        SetPlayerParent();
+        SpawnPlayer(true, Settings.username, levels[chosenLevel].GetRandomSpawnPoint()); //Spawn Player
+        SpawnPlayers(userDefinedBotCount);
+        //Add other stuff?
+    }
+
+    public void SetPlayerParent()
+    {
+        playersParent = GameObject.Find("Players");
+    }
+
+    private void SpawnPlayers(int playerCount)
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+            SpawnPlayer(false, GetRandomBotName(true), levels[chosenLevel].GetRandomSpawnPoint());
+        }
+    }
+
+    private void SpawnPlayer(bool isHuman = false, string name = "bot", NavPoint pos = default(NavPoint), Vector3 rotation = default(Vector3), List<Item> weapons = null, int equipItem = -1)
+    {
+        GameObject newPlayer;
+
+        if (isHuman)
+        {
+            newPlayer = Instantiate<GameObject>(Resources.Load<GameObject>("Player"));
+            //newPlayer.GetComponentInChildren<Camera>().targetDisplay = 1;
+        }
+        else
+        {
+            newPlayer = Instantiate<GameObject>(Resources.Load<GameObject>("Bot_root"));
+            newPlayer.GetComponentInChildren<Camera>().targetDisplay = playerCount + 1;
+        }
+
+        newPlayer.GetComponentInChildren<Humanoid>().username = name;
+
+        //Add to players 
+        newPlayer.transform.parent = playersParent.transform;
+        players.Add(newPlayer.GetComponent<Humanoid>());
+
 
         //Set pos and rotation
-        if (pos != null) { bot.transform.position = pos; } else { bot.transform.position = default(Vector3); }
-        if (rotation != null) { bot.transform.rotation = Quaternion.Euler(rotation); } else { bot.transform.rotation = Quaternion.Euler(default(Vector3)); }
+        if (pos != null) { newPlayer.transform.position = pos.transform.position; } else { newPlayer.transform.position = default(Vector3); }
+        if (rotation != null) { newPlayer.transform.rotation = Quaternion.Euler(rotation); } else { newPlayer.transform.rotation = Quaternion.Euler(default(Vector3)); }
 
-        Inventory botInventory = bot.GetComponentInChildren<Humanoid>().Inventory;
+        Inventory inventory = newPlayer.GetComponentInChildren<Humanoid>().Inventory;
 
 /*        //Add items to the spawned bot
         foreach (Item item in items)
@@ -59,7 +164,7 @@ public class GameManager : MonoBehaviour
             botInventory.Equip(items[equipItem]);
         }*/
        
-        botCount++;
+        playerCount++;
     }
 
     public void QuitGame()
