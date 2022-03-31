@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
+using UnityEngine.UI;
 
 public class Settings : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    void SetOptions()
+    public void SetOptions()
     {
         FieldInfo[] settings = typeof(Settings).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -54,7 +55,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    void SaveToPlayerPrefs()
+    public void SaveToPlayerPrefs()
     {
         foreach (FieldInfo fieldInfo in options)
         {
@@ -76,6 +77,8 @@ public class Settings : MonoBehaviour
                     Debug.LogWarning(fieldInfo.Name + " with fieldtype " + fieldInfo.FieldType + " did not save correctly to playerprefs! ");
                     break;
             }
+
+            print(fieldInfo.GetValue(this));
         }
 
         PlayerPrefs.Save();
@@ -139,6 +142,29 @@ public class Settings : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void SaveSetting(Slider slider)
+    {
+        FieldInfo fieldInfo = GetFieldInfo(slider.transform.parent.name);
+        fieldInfo.SetValue(this, slider.value);
+    }
+
+    public void SaveSetting(Toggle toggle)
+    {
+        FieldInfo fieldInfo = GetFieldInfo(toggle.transform.parent.name);
+        fieldInfo.SetValue(this, toggle.isOn);
+    }
+
+    public void SaveSetting(InputField inputField)
+    {
+        FieldInfo fieldInfo = GetFieldInfo(inputField.transform.parent.name);
+        fieldInfo.SetValue(this, inputField.text);
+    }
+
+    FieldInfo GetFieldInfo(string str)
+    {
+        return typeof(Settings).GetField(str, BindingFlags.Public | BindingFlags.Static); 
     }
 
     public static void PauseGame(bool boolean)
