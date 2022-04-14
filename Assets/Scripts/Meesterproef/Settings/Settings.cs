@@ -14,6 +14,8 @@ public class Settings : MonoBehaviour
     [SerializeField] float _volume;
     [SerializeField] bool _equipOnPickup;
     [SerializeField] bool _keepCursorInApplicationWindow;
+    [SerializeField] float _MatchDuration;
+    [SerializeField] int _MatchMaxKills;
 
     //Statics
     public static string username;
@@ -21,6 +23,8 @@ public class Settings : MonoBehaviour
     public static float volume;
     public static bool equipOnPickup;
     public static bool keepCursorInApplicationWindow;
+    public static float MatchDuration;
+    public static float MatchMaxKills;
 
     public static bool gamePaused = false;
 
@@ -37,6 +41,8 @@ public class Settings : MonoBehaviour
         {
             LoadFromPlayerPrefs();
         }
+
+        MatchDuration *= 60; //Convert it to mins
     }
 
     public void SetOptions()
@@ -77,8 +83,6 @@ public class Settings : MonoBehaviour
                     Debug.LogWarning(fieldInfo.Name + " with fieldtype " + fieldInfo.FieldType + " did not save correctly to playerprefs! ");
                     break;
             }
-
-            print(fieldInfo.GetValue(this));
         }
 
         PlayerPrefs.Save();

@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] List<Level> levels = new List<Level>();
+    [SerializeField] List<GameObject> weapons = new List<GameObject>();
+    List<Weapon> inventoryWeapons = new List<Weapon>();
     [SerializeField] int chosenLevel = 0;
     [SerializeField] int userDefinedBotCount = 0;
     [SerializeField] int maxPlayerCount = 6; //This is players and bots!
-    [SerializeField] List<Humanoid> players = new List<Humanoid>();
-    string[] maleBotNames = new string[] { "Steve", "Maik", "Rik", "John" };
-    string[] femaleBotNames = new string[] { "Charlotte", "Emma", "Noami", "Karen" };
+    [SerializeField] List<Player> players = new List<Player>();
+    string[] botNames = new string[] { "Steve", "Maik", "Rik", "John" };
     GameObject playersParent;
 
     int playerCount = 0;
@@ -22,6 +25,11 @@ public class GameManager : MonoBehaviour
         foreach (GameObject level in Resources.LoadAll<GameObject>("Levels/"))
         {
             levels.Add(level.GetComponent<Level>());
+        }
+
+        foreach (GameObject item in weapons)
+        {
+            inventoryWeapons.Add(item.GetComponentInChildren<Weapon>());
         }
     }
 
@@ -50,6 +58,10 @@ public class GameManager : MonoBehaviour
     }
 
     public void UpdateLevelName(Text text)
+    {
+        text.text = levels[chosenLevel].levelName;
+    }
+    public void UpdateLevelName(TextMeshProUGUI text)
     {
         text.text = levels[chosenLevel].levelName;
     }
@@ -89,25 +101,29 @@ public class GameManager : MonoBehaviour
         FillLevel();
     }
 
-    private string GetRandomBotName(bool male)
+    private string GetRandomBotName()
     {
-        if (male)
-        {
-            return maleBotNames[Random.Range(0, maleBotNames.Length - 1)];
-        }
-        else
-        {
-            return femaleBotNames[Random.Range(0, femaleBotNames.Length -1)];
-        }
+        return botNames[Random.Range(0, botNames.Length)];
     }
 
     public void FillLevel()
     {
         //Add players
         SetPlayerParent();
-        SpawnPlayer(true, Settings.username, levels[chosenLevel].GetRandomSpawnPoint()); //Spawn Player
+
+        //Actual player
+        Player player = new Player(Settings.username);
+        player.humanoid = SpawnHumanoid(player, true, levels[chosenLevel].GetRandomSpawnPoint());
+        players.Add(player);
+
+        //Bots
         SpawnPlayers(userDefinedBotCount);
+
         //Add other stuff?
+        if (Settings.MatchDuration > 0)
+        {
+            StartCoroutine(startMatchTime());
+        }
     }
 
     public void SetPlayerParent()
@@ -119,52 +135,174 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < playerCount; i++)
         {
-            SpawnPlayer(false, GetRandomBotName(true), levels[chosenLevel].GetRandomSpawnPoint());
+            Player player = new Player(GetRandomBotName());
+            player.humanoid = SpawnHumanoid(player, false, levels[chosenLevel].GetRandomSpawnPoint());
+            players.Add(player);
         }
     }
 
-    private void SpawnPlayer(bool isHuman = false, string name = "bot", NavPoint pos = default(NavPoint), Vector3 rotation = default(Vector3), List<Item> weapons = null, int equipItem = -1)
+    public Humanoid RespawnHumanoid(Player player)
+    {
+        Humanoid humanoid = SpawnHumanoid(player, player.IsHuman, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon>() { inventoryWeapons[0] });
+
+        if (player.IsHuman)
+        {
+            humanoid.Inventory = new PlayerInventory();
+        }
+        else
+        {
+            humanoid.Inventory = new Inventory();
+        }
+
+        return humanoid;
+    }
+
+    IEnumerator StartRespawn(Player player)
+    {
+        DestroyImmediate(player.humanoid.transform.parent.gameObject);
+        player.humanoid = null;
+
+        foreach (Player p in players)
+        {
+            if (p.humanoid != null)
+            {
+                Combat combat = p.humanoid.gameObject.GetComponent<Combat>();
+                if (combat != null) { combat.GetPlayers(); }
+            }
+        }
+
+        yield return new WaitForSeconds(3);
+
+        player.humanoid = RespawnHumanoid(player);
+    }
+
+
+    private Humanoid SpawnHumanoid(Player player, bool isHuman = false, NavPoint pos = default, Vector3 rotation = default, List<Weapon> weapons = null, int equipItem = -1)
     {
         GameObject newPlayer;
 
         if (isHuman)
         {
-            newPlayer = Instantiate<GameObject>(Resources.Load<GameObject>("Player"));
+            newPlayer = Instantiate(Resources.Load<GameObject>("Player"));
             //newPlayer.GetComponentInChildren<Camera>().targetDisplay = 1;
         }
         else
         {
-            newPlayer = Instantiate<GameObject>(Resources.Load<GameObject>("Bot_root"));
+            newPlayer = Instantiate(Resources.Load<GameObject>("Bot_root"));
             newPlayer.GetComponentInChildren<Camera>().targetDisplay = playerCount + 1;
         }
 
-        newPlayer.GetComponentInChildren<Humanoid>().username = name;
+        Humanoid newPlayerHumanoid = newPlayer.GetComponentInChildren<Humanoid>();
+
+        newPlayerHumanoid.OnPlayerDeath.AddListener(delegate { 
+            StartCoroutine(StartRespawn(player));
+        });
+
+        if (Settings.MatchMaxKills > 0)
+        {
+            newPlayerHumanoid.OnMaxKillsReached.AddListener(EndGame);
+        }
 
         //Add to players 
         newPlayer.transform.parent = playersParent.transform;
-        players.Add(newPlayer.GetComponent<Humanoid>());
-
 
         //Set pos and rotation
-        if (pos != null) { newPlayer.transform.position = pos.transform.position; } else { newPlayer.transform.position = default(Vector3); }
-        if (rotation != null) { newPlayer.transform.rotation = Quaternion.Euler(rotation); } else { newPlayer.transform.rotation = Quaternion.Euler(default(Vector3)); }
+        if (pos != null) { newPlayer.transform.position = pos.transform.position; } else { newPlayer.transform.position = default; }
+        if (rotation != null) { newPlayer.transform.rotation = Quaternion.Euler(rotation); } else { newPlayer.transform.rotation = Quaternion.Euler(default); }
 
         Inventory inventory = newPlayer.GetComponentInChildren<Humanoid>().Inventory;
 
-/*        //Add items to the spawned bot
-        foreach (Item item in items)
+        if (weapons != null)
         {
-            GameObject newItem = Instantiate<GameObject>(item.transform.parent.gameObject);
-            botInventory.Pickup(newItem.transform.GetComponentInChildren<Item>());
-        }*/
-/*
-        //If equipItem is set to something higher than -1, we will try to equip the weapon which has been selected by the int in the inventory
-        if (equipItem > -1 && botInventory.weapons.Contains([weapons.equipItem]))
+            //Add items to the spawned bot
+            foreach (Weapon weapon in weapons)
+            {
+                GameObject newWeapon = Instantiate(weapon.transform.parent.gameObject, inventory.hand.transform);
+                Item newWeaponItem = newWeapon.transform.GetComponentInChildren<Item>();
+                inventory.Pickup(newWeaponItem);
+                inventory.Equip((Weapon)newWeaponItem);
+            }
+        }
+
+        if (equipItem > -1 && equipItem < weapons.Count)
         {
-            botInventory.Equip(items[equipItem]);
-        }*/
-       
+            inventory.Equip(inventory.weapons[equipItem]);
+
+            if (isHuman)
+            {
+                UI userInventory = (UI)inventory;
+                userInventory.SelectSlot(equipItem);
+            }
+        }
+
+
         playerCount++;
+
+        return newPlayerHumanoid;
+    }
+
+    public static GameObject FindChildRecursive(Transform transform, string name)
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+
+            GameObject obj = FindChildRecursive(child, name);
+            if (obj != null) return obj;
+        }
+
+        return null;
+    }
+
+    public static GameObject FindParentRecursive(Transform transform, string name)
+    {
+        foreach (Transform child in transform)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+
+            GameObject obj = FindChildRecursive(child, name);
+            if (obj != null) return obj;
+        }
+
+        return null;
+    }
+
+    public static Component FindComponentInParentRecursive(Transform transform, System.Type type)
+    {
+        Component c = transform.GetComponent(type);
+        if (c != null)
+        {
+            return c;
+        }
+        else
+        {
+            if (transform.parent == null)
+            {
+                print("FindComponentInParentRecursive FAILED "+transform.gameObject.name+" has no parent");
+                return null;
+            }
+
+            print("Search deeper: " + transform.gameObject.name +" -> "+transform.parent.gameObject.name);
+            return FindComponentInParentRecursive(transform.parent, type);
+        }
+    }
+
+    public IEnumerator startMatchTime()
+    {
+        yield return new WaitForSeconds(Settings.MatchDuration);
+        EndGame();
+    }
+
+    public void EndGame()
+    {
+        //Show leaderboard
+        print("Game ended!");
     }
 
     public void QuitGame()

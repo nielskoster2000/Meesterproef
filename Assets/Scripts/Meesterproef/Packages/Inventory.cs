@@ -6,12 +6,12 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     [SerializeField] public List<Weapon> weapons = new List<Weapon>();
-    [SerializeField] protected int selectedWeapon = 0;
+    [SerializeField] public int selectedWeapon = -1;
     public GameObject hand;
 
     public virtual void Start()
     {
-        SetListSize(5);
+
     }
 
     public virtual void Update()
@@ -19,7 +19,7 @@ public class Inventory : MonoBehaviour
 
     }
 
-    void SetListSize(int size)
+    protected void SetListSize(int size)
     {
         for (int i = 0; i < size; i++)
         {
@@ -29,6 +29,12 @@ public class Inventory : MonoBehaviour
 
     public virtual bool Pickup(Item item)
     {
+
+        if (weapons.Count <= 0)
+        {
+            SetListSize(6);
+        }
+
         if (item.GetType() == typeof(Weapon)) //and if item is a weapon
         { 
             Weapon weapon = item as Weapon;
@@ -36,6 +42,7 @@ public class Inventory : MonoBehaviour
             if (!weapons.Contains(weapon)) //If this inventory does not yet contain such a item...
             {
                 weapons[weapon.inventorySlotPosition] = weapon; //We add it to the inventory
+
                 return true; //We return true since the weapon has been picked up and inserted into the inventory
             }
             else //If the item is already in this inventory...
@@ -50,20 +57,32 @@ public class Inventory : MonoBehaviour
             }
         }
 
+
+
         //If its not picked up return false
         return false;
     }
 
 
-    public void Equip(Weapon weapon)
+    public virtual void Equip(Weapon weapon)
     {
-        weapon.transform.parent.gameObject.SetActive(true);
+        if (weapon != null)
+        {
+            if (weapon.transform.parent != null)
+            {
+                weapon.transform.parent.gameObject.SetActive(true);
+            }
+            else
+            {
+                weapon.gameObject.SetActive(true);
+            }
 
-        weapon.transform.parent.position = hand.transform.position;
-        weapon.transform.parent.rotation = hand.transform.rotation;
-        weapon.transform.parent.parent = hand.transform;
+            weapon.transform.parent.position = hand.transform.position;
+            weapon.transform.parent.rotation = hand.transform.rotation;
+            weapon.transform.parent.parent = hand.transform;
 
-        weapon.inHand = true;
+            weapon.OnEquip();
+        }
     }
 
     public void UnEquip(Weapon weapon)

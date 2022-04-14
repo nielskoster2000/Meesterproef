@@ -1,29 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Combat : Ability
 {
     //Objects
     Camera cam;
     Humanoid humanoid;
+    Inventory inventory;
     public List<Humanoid> players = new List<Humanoid>();
     public bool combat = false;
     float aimAccuracy = 5f; //The lower the value, the more accurate the bot
+    GameObject currentEnemy = null;
 
     //Variables
-    [SerializeField] int health = 100;
+    private float aimTime = 0.0f;
 
     public List<Transform> raycastpoints = new List<Transform>();
+    GameObject spine;
 
     private void Start()
     {
         GetPlayers();
         cam = GetComponentInChildren<Camera>();
         humanoid = GetComponent<Humanoid>();
+        inventory = humanoid.Inventory;
+
+        spine = GameManager.FindChildRecursive(transform, "Spine"); 
     }
 
-    void GetPlayers()
+    public void GetPlayers()
     {
         players.Clear();
         players = new List<Humanoid>(gameObject.transform.parent.parent.GetComponentsInChildren<Humanoid>());
@@ -31,26 +38,40 @@ public class Combat : Ability
 
     private void Update()
     {
-        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
-
-        foreach (Humanoid player in players)
+        if (inventory.selectedWeapon >= 0)
         {
-            if (player.gameObject != gameObject)
-            {
-                player.GetComponent<MeshRenderer>().material.color = Color.green;
-                combat = false;
-                cam.transform.rotation = gameObject.transform.rotation;
+            Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
 
-                if (GeometryUtility.TestPlanesAABB(planes, player.Bounds)) //Is a player in the camera's view?
+            foreach (Humanoid player in players)
+            {
+                if (player.gameObject != gameObject)
                 {
-                    if (!IsObstructed(player.gameObject))
+                    combat = false;
+
+                    if (GeometryUtility.TestPlanesAABB(planes, player.Bounds)) //Is a player in the camera's view?
                     {
-                        combat = true;
-                        player.GetComponent<MeshRenderer>().material.color = Color.red;
-                        FightOpponent(player);
-                        break;
+                        if (!IsObstructed(player.gameObject))
+                        {
+                            combat = true;
+
+                            if (currentEnemy == null || player.gameObject == currentEnemy)
+                            {
+                                FightOpponent(player);
+                            }
+
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        currentEnemy = null; //Enemy is no longer visible
                     }
                 }
+            }
+
+            if (!combat)
+            {
+                //cam.transform.rotation = gameObject.transform.rotation;
             }
         }
     }
@@ -70,19 +91,30 @@ public class Combat : Ability
             }
         }
 
-
         return true;
     }
 
     public void FightOpponent(Humanoid opponent)
     {
+        currentEnemy = opponent.gameObject;
+
         //Aim
         Vector3 aimOffset = new Vector3(Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy));
 
-     /*   transform.parent.LookAt(opponent.transform.position);
-        transform.parent.rotation = Quaternion.Euler(transform.parent.rotation.x, transform.parent.rotation.y, *//*transform.parent.rotation.z*//* 0 );*/
+        Quaternion newRotation = Quaternion.LookRotation(opponent.transform.position - transform.position, Vector3.forward);
+        newRotation.x = 0f;
+        //newRotation.y = 0f;
+        newRotation.z = 0f;
 
-        //pew pew
-        
+        //spine.transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, aimTime);
+        //spine.transform.rotation = newRotation;
+
+        //aimTime += Time.deltaTime;
+
+        print("selected weapon: "+inventory.selectedWeapon);
+        if (inventory.weapons[inventory.selectedWeapon] != null)
+        {
+            inventory.weapons[inventory.selectedWeapon].Use();
+        }
     }
 }

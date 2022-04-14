@@ -11,11 +11,13 @@ public class Navigation : MonoBehaviour
     [SerializeField] int travelQueueBuffer;
     Queue<NavPoint> traveledNavPoints = new Queue<NavPoint>();
     Combat combatPackage;
+    Animator animator;
 
     private void Start()
     {
         navMeshAgent = gameObject.transform.parent.GetComponent<NavMeshAgent>();
         combatPackage = GetComponent<Combat>();
+        animator = GetComponent<Animator>();
         SetClosestTarget();
     }
 
@@ -26,6 +28,11 @@ public class Navigation : MonoBehaviour
             if (!navMeshAgent.enabled)
             {
                 navMeshAgent.enabled = true;
+            }
+
+            if (!animator.enabled)
+            {
+                animator.enabled = true;
             }
 
             if (!combatPackage.combat) //If combat is not active
@@ -40,6 +47,7 @@ public class Navigation : MonoBehaviour
         else
         {
             navMeshAgent.enabled = false;
+            animator.enabled = false;
         }
     }
 

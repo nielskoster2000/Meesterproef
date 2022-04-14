@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class Weapon : Item
 {
@@ -19,43 +20,25 @@ public class Weapon : Item
 
     [Space]
 
+    //Weapon details
     [SerializeField] bool automatic;
-    [SerializeField] Type type;
-    [SerializeField] int ammo;
+    [SerializeField] public Type type;
+    [SerializeField] public int ammo;
     [SerializeField] float cooldownTime;
     bool cooldown;
     [SerializeField] int damage;
     [SerializeField] public int ammoPickupAmount;
-    [HideInInspector] public bool inHand = false;
+    public bool inHand = false;
+
+    [HideInInspector] public UnityEvent onFire;
+
+    //Components
+    ParticleSystem attackEffect;
+    AudioSource attackSound;
+    Animation attackAnimation;
+    public Camera playerCamera = null;
 
     int humanoidLayer;
-
-    void Start()
-    {
-        humanoidLayer = LayerMask.GetMask("Humanoid");
-    }
-
-    private void Update()
-    {
-        if (inHand)
-        {
-            if (automatic)
-            {
-                if (Input.GetKey(KeyCode.Mouse0))
-                {
-                    Use();
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(KeyCode.Mouse0))
-                {
-                    Use();
-                }
-            }
-        }
-    }
-
     public override void Use()
     {
         if (ammo > 0 && !cooldown)
@@ -66,12 +49,10 @@ public class Weapon : Item
                     //Do melee stuff
                     break;
                 case Type.ranged:
-                    ActivateWeaponEffects();
                     CheckHit();
                     ammo--;
                     break;
                 case Type.projectile:
-                    ActivateWeaponEffects();
                     //Shoot projectile
                     ammo--;
                     break;
@@ -79,9 +60,61 @@ public class Weapon : Item
                     break;
             }
 
+
+
+            onFire.Invoke();
+            ActivateWeaponEffects();
             StartCoroutine(Cooldown());
         }
     }
+
+    private void Awake()
+    {
+        humanoidLayer = LayerMask.GetMask("Humanoid");
+
+        //Try getting these components
+        TryGetComponent<ParticleSystem>(out attackEffect);
+        TryGetComponent<AudioSource>(out attackSound);
+        TryGetComponent<Animation>(out attackAnimation);
+
+        if (attackSound != null)
+        {
+            attackSound.volume = Settings.volume * 0.0005f;
+        }
+    }
+
+    private void Update()
+    {
+        if (!Settings.gamePaused)
+        {
+            if (inHand)
+            {
+                if (automatic)
+                {
+                    if (Input.GetMouseButton(0))
+                    {
+                        Use();
+                    }
+                }
+                else
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        Use();
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    public override void OnEquip()
+    {
+        //playerCamera = transform.parent.parent.GetComponentInParent<Camera>();
+        playerCamera = GameManager.FindComponentInParentRecursive(transform, typeof(Camera)) as Camera;
+    }
+
 
     public virtual IEnumerator Cooldown()
     {
@@ -98,25 +131,35 @@ public class Weapon : Item
     private void ActivateWeaponEffects()
     {
         //Start particle system
+        if (attackEffect != null)
+        {
+            attackEffect.Play();
+        }
+
         //Start audio
+        if (attackSound != null)
+        {
+            attackSound.Play();
+        }
+
         //Start animation
+        if (attackAnimation != null)
+        {
+            attackAnimation.Play();
+        }
     }
 
     private void CheckHit()
     {
         RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, humanoidLayer))
         {
-            if (hit.transform.TryGetComponent<Humanoid>(out Humanoid humanoid))
+            if (hit.transform.TryGetComponent(out Humanoid humanoid) && humanoid.gameObject)
             {
-                humanoid.Health -= damage;
-                print("Did damage!");
-            }
-            else
-            {
-                print("Couldn't get component!, hit layer " + LayerMask.LayerToName(hit.transform.gameObject.layer));
+                humanoid.ChangeHealth(-damage);
+                print("Damaged " + humanoid.name);
             }
         }
     }

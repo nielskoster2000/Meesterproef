@@ -1,22 +1,25 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Humanoid : MonoBehaviour
 {
-    [HideInInspector] public string username;
     int health;
-    Vector2 stats;
+    Vector2 stats = new Vector2(0, 0);
     Bounds bounds;
-
-    public int Health
-    {
-        get { return health; }
-        set { health = Mathf.Clamp(value, 0, 100); }
-    }
+    [HideInInspector] public UnityEvent<Humanoid> OnPlayerDeath;
+    [HideInInspector] public UnityEvent OnRecievedDamage;
+    [HideInInspector] public UnityEvent OnMaxKillsReached;
 
     public void ChangeKills(int amount)
     {
         stats.x += amount; 
+
+        if (stats.x >= Settings.MatchMaxKills)
+        {
+            OnMaxKillsReached.Invoke();
+        }
     }
 
     public void ChangeDeaths(int amount)
@@ -24,7 +27,40 @@ public class Humanoid : MonoBehaviour
         stats.y += amount;
     }
 
-    public bool IsHuman { get; private set; } = false;
+    public void ChangeHealth(int amount)
+    {
+        if (amount < 0)
+        {
+            OnRecievedDamage.Invoke();
+        }
+
+        health += amount;
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public int GetHealth()
+    {
+        return health;
+    }
+
+
+    public void Die()
+    {
+        //Animations or something
+        ChangeDeaths(1);
+        OnPlayerDeath.Invoke(this);
+    }
+
+
+    public Vector2 GetStats()
+    {
+        return stats;
+    }
+
     public Bounds Bounds { get { return bounds; }  private set { bounds = value; } }
 
     public Camera cam
@@ -49,17 +85,17 @@ public class Humanoid : MonoBehaviour
     private void Awake()
     {
         GameObject hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
-        IsHuman = gameObject.CompareTag("Player");
         cam = GetComponentInChildren<Camera>();
+        health = 100;
 
-        if (IsHuman) 
+        if (gameObject.CompareTag("Player")) 
         { 
             Bounds = GetComponent<CharacterController>().bounds;
-            Inventory = gameObject.AddComponent<PlayerInventory>();
+            Inventory = gameObject.AddComponent<UI>();
         }
         else 
         { 
-            Bounds = GetComponent<CapsuleCollider>().bounds;
+            Bounds = GetComponentInChildren<Collider>().bounds;
             Inventory = gameObject.AddComponent<Inventory>();
         }
 

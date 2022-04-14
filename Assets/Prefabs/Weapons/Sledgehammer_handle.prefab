@@ -127,7 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: 
   inventorySlotPosition: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 89fcfc98fc1717740abe1ae52ce783db, type: 3}
   rank: 0
   automatic: 0
   type: 0
@@ -136,3 +136,6 @@ MonoBehaviour:
   damage: 50
   ammoPickupAmount: 0
   inHand: 0
+  onFire:
+    m_PersistentCalls:
+      m_Calls: []
