@@ -284,11 +284,9 @@ public class GameManager : MonoBehaviour
         {
             if (transform.parent == null)
             {
-                print("FindComponentInParentRecursive FAILED "+transform.gameObject.name+" has no parent");
                 return null;
             }
 
-            print("Search deeper: " + transform.gameObject.name +" -> "+transform.parent.gameObject.name);
             return FindComponentInParentRecursive(transform.parent, type);
         }
     }
