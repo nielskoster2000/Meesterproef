@@ -2513,6 +2513,12 @@ MonoBehaviour:
   OnPlayerDeath:
     m_PersistentCalls:
       m_Calls: []
+  OnRecievedDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  OnMaxKillsReached:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1024066266599396326
 MonoBehaviour:
   m_ObjectHideFlags: 0
