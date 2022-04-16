@@ -111,6 +111,7 @@ MonoBehaviour:
   onFire:
     m_PersistentCalls:
       m_Calls: []
+  playerCamera: {fileID: 0}
 --- !u!82 &4014709533780130671
 AudioSource:
   m_ObjectHideFlags: 0
@@ -123,7 +124,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 7d0cb7ef0e25735439f0a1323bbd729e, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.2
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
