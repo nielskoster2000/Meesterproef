@@ -5,32 +5,57 @@ using UnityEngine;
 public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] GameObject itemPrefab;
+    [SerializeField] float RespawnTime = 5f;
     Item item;
+    GameObject instance;
+    [SerializeField] AudioSource pickupSound;
 
     private void Start()
     {
-        GameObject instance = Instantiate(itemPrefab.transform.gameObject, gameObject.transform);
+        SpawnInstance();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Humanoid humanoid))
+        {
+            if (item.GetType() == typeof(Weapon))
+            {
+                Weapon weapon = (Weapon)item;
+
+                if (humanoid.Inventory.Pickup(item))
+                {
+                    humanoid.Inventory.Equip(weapon);
+                    item.enabled = true;
+                }
+                else
+                {
+                    humanoid.Inventory.weapons[weapon.inventorySlotPosition].onFire.Invoke();
+                }
+            }
+
+            pickupSound.Play();
+        }
+
+        //StartCoroutine(StartRespawn(RespawnTime));
+    }
+    private void SpawnInstance()
+    {
+        instance = Instantiate(itemPrefab.transform.gameObject, gameObject.transform);
 
         instance.transform.position = gameObject.transform.position;
-        instance.transform.rotation = gameObject.transform.rotation;
+        instance.transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
 
         item = instance.GetComponentInChildren<Item>();
         item.enabled = false;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private IEnumerator StartRespawn(float time)
     {
-        if (other.TryGetComponent<Humanoid>(out Humanoid humanoid))
-        {
-            humanoid.Inventory.Pickup(item);
+        Destroy(instance);
 
-            if (item.GetType() == typeof(Weapon))
-            {
-                Weapon weapon = (Weapon)item;
+        yield return new WaitForSeconds(time);
 
-                humanoid.Inventory.Equip(weapon);
-                item.enabled = true;
-            }
-        }
+        SpawnInstance();
     }
 }

@@ -71,20 +71,19 @@ public class Humanoid : MonoBehaviour
     public Inventory Inventory { get; set; } 
 
 
-    public Humanoid(string name, List<Ability> abilities)
-    {
-        //if (abilities != null)
-        //{
-        //    foreach (Ability ability in abilities)
-        //    {
-        //        Ability a = gameObject.AddComponent(ability.GetType()) as Ability;
-        //    }
-        //}
-    }
-
     private void Awake()
     {
-        GameObject hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
+        GameObject hand;
+
+        if (transform.GetComponentInChildren<Camera>().transform.Find("Hand"))
+        {
+            hand = transform.GetComponentInChildren<Camera>().transform.Find("Hand").gameObject;
+        }
+        else
+        {
+            hand = GameManager.FindChildRecursive(transform, "Hand");
+        }
+
         cam = GetComponentInChildren<Camera>();
         health = 100;
 

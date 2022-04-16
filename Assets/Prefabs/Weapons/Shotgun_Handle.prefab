@@ -108,6 +108,7 @@ MonoBehaviour:
   onFire:
     m_PersistentCalls:
       m_Calls: []
+  playerCamera: {fileID: 0}
 --- !u!1 &6443784933913003025
 GameObject:
   m_ObjectHideFlags: 0

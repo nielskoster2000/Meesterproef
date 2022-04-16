@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class Combat : Ability
+public class Combat : MonoBehaviour
 {
     //Objects
     Camera cam;
@@ -27,7 +27,7 @@ public class Combat : Ability
         humanoid = GetComponent<Humanoid>();
         inventory = humanoid.Inventory;
 
-        spine = GameManager.FindChildRecursive(transform, "Spine"); 
+        spine = GameManager.FindChildRecursive(transform, "mixamorig:Spine"); 
     }
 
     public void GetPlayers()
@@ -107,11 +107,10 @@ public class Combat : Ability
         newRotation.z = 0f;
 
         //spine.transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, aimTime);
-        //spine.transform.rotation = newRotation;
+        spine.transform.rotation = newRotation;
 
         //aimTime += Time.deltaTime;
 
-        print("selected weapon: "+inventory.selectedWeapon);
         if (inventory.weapons[inventory.selectedWeapon] != null)
         {
             inventory.weapons[inventory.selectedWeapon].Use();

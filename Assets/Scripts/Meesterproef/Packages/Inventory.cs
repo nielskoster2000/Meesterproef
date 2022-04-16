@@ -6,17 +6,12 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     [SerializeField] public List<Weapon> weapons = new List<Weapon>();
-    [SerializeField] public int selectedWeapon = -1;
+    [SerializeField] public int selectedWeapon = 0;
     public GameObject hand;
 
-    public virtual void Start()
+    private void Awake()
     {
-
-    }
-
-    public virtual void Update()
-    {
-
+        SetListSize(6);
     }
 
     protected void SetListSize(int size)
@@ -29,17 +24,11 @@ public class Inventory : MonoBehaviour
 
     public virtual bool Pickup(Item item)
     {
-
-        if (weapons.Count <= 0)
-        {
-            SetListSize(6);
-        }
-
-        if (item.GetType() == typeof(Weapon)) //and if item is a weapon
+        if (item.GetType() == typeof(Weapon)) //If item is a weapon
         { 
             Weapon weapon = item as Weapon;
 
-            if (!weapons.Contains(weapon)) //If this inventory does not yet contain such a item...
+            if (weapons[weapon.inventorySlotPosition] == null) //If this inventory does not yet contain such a weapon...
             {
                 weapons[weapon.inventorySlotPosition] = weapon; //We add it to the inventory
 
@@ -47,17 +36,13 @@ public class Inventory : MonoBehaviour
             }
             else //If the item is already in this inventory...
             {
-                foreach (Weapon i in weapons)
-                {
-                    if (weapon == i)
-                    {
-                        weapon.AddAmmo(weapon.ammoPickupAmount);
-                    }
-                }
+                weapons[weapon.inventorySlotPosition].AddAmmo(weapon.ammoPickupAmount);//Add ammo to the weapon which is already a duplicate
             }
         }
-
-
+        else //It must be an consumable, in which case we'll use it
+        {
+            item.Use();
+        }
 
         //If its not picked up return false
         return false;
@@ -68,19 +53,18 @@ public class Inventory : MonoBehaviour
     {
         if (weapon != null)
         {
-            if (weapon.transform.parent != null)
-            {
-                weapon.transform.parent.gameObject.SetActive(true);
-            }
-            else
-            {
-                weapon.gameObject.SetActive(true);
-            }
+            //Set active
+            weapon.transform.parent.gameObject.SetActive(true);
 
+            //Set Position and rotation
             weapon.transform.parent.position = hand.transform.position;
             weapon.transform.parent.rotation = hand.transform.rotation;
+
+            //Set parent
             weapon.transform.parent.parent = hand.transform;
 
+            //Set selected weapon
+            selectedWeapon = weapon.inventorySlotPosition;
             weapon.OnEquip();
         }
     }

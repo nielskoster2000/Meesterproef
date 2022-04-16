@@ -54,7 +54,7 @@ public class UI : Inventory
 
     }
 
-    public override void Update()
+    public void Update()
     {
         if (Input.mouseScrollDelta.y > 0)
         {
@@ -149,31 +149,22 @@ public class UI : Inventory
         {
             Weapon weapon = item as Weapon;
 
-            if (weapon != null)
+            weapons[item.inventorySlotPosition].onFire.AddListener(UpdateAmmoCount);
+
+            if (Settings.equipOnPickup) //Finally we'll have to check if the player prefers to automatically equip picked up weapons
             {
-                if (selectedWeapon != -1 && weapons[selectedWeapon] != null) //Unequip the previous weapon
+                if (weapon != weapons[item.inventorySlotPosition]) //If weapon is not already selected. This could happen when spawning
                 {
-                    UnEquip(weapons[selectedWeapon]);
+                    inventorySlots[item.inventorySlotPosition].Weapon = weapon;
+                    Equip(weapons[item.inventorySlotPosition]); //Equip the newly selected weapon
+                    SelectSlot(item.inventorySlotPosition); //Select the new inventory slot
                 }
-
-                selectedWeapon = item.inventorySlotPosition;
-                weapons[selectedWeapon].onFire.AddListener(UpdateAmmoCount);
-                weapons[selectedWeapon].onFire.Invoke();
-
-                if (Settings.equipOnPickup) //Finally we'll have to check if the player prefers to automatically equip picked up weapons
-                {
-                    if (weapon != weapons[selectedWeapon]) //If weapon is not already selected. This could happen when spawning
-                    {
-                        inventorySlots[selectedWeapon].Weapon = weapon;
-                        Equip(weapons[selectedWeapon]); //Equip the newly selected weapon
-                        SelectSlot(selectedWeapon); //Select the new inventory slot
-                    }
-                }
-
-                IsInventoryEmpty = false; //Set this false once a weapon is picked up
-
-                return true; //This will return true if a weapon has been picked up
             }
+
+            IsInventoryEmpty = false; //Set this false once a weapon is picked up
+
+            return true; //This will return true if a weapon has been picked up
+     
         }
 
         return false; //This will return false if something other than a weapon has been picked up
@@ -181,11 +172,21 @@ public class UI : Inventory
 
     public override void Equip(Weapon weapon)
     {
+        //Unequip previous weapon if there is one
+        if (selectedWeapon != -1) //Check if any weapon has been selected before
+        {
+            if (weapons[selectedWeapon] != null) //Unequip the previous weapon if there is one
+            {
+                UnEquip(weapons[selectedWeapon]);
+            }
+        }
+
         base.Equip(weapon);
 
         if (weapon != null)
         {
-            weapon.inHand = true;
+            weapon.onFire.Invoke(); //Use the event to update the ammo count without any ammo being actually wasted
+            weapon.inHand = true; //Set inHand to true so that you can shoot it
         }
     }
 }

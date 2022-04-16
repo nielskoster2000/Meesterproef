@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
 
     int playerCount = 0;
 
+    [SerializeField] List<AudioSource> audioSources = new List<AudioSource>();
+
     private void Start()
     {
         foreach (GameObject level in Resources.LoadAll<GameObject>("Levels/"))
@@ -31,6 +33,9 @@ public class GameManager : MonoBehaviour
         {
             inventoryWeapons.Add(item.GetComponentInChildren<Weapon>());
         }
+
+        GetAudioComponents();
+        SetAudioLevels();
     }
 
     public void ChangeBotCount(int amount)
@@ -113,7 +118,7 @@ public class GameManager : MonoBehaviour
 
         //Actual player
         Player player = new Player(Settings.username);
-        player.humanoid = SpawnHumanoid(player, true, levels[chosenLevel].GetRandomSpawnPoint());
+        player.humanoid = SpawnHumanoid(player, true, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon> { inventoryWeapons[0] });
         players.Add(player);
 
         //Bots
@@ -124,6 +129,9 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(startMatchTime());
         }
+
+        GetAudioComponents();
+        SetAudioLevels();
     }
 
     public void SetPlayerParent()
@@ -136,7 +144,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < playerCount; i++)
         {
             Player player = new Player(GetRandomBotName());
-            player.humanoid = SpawnHumanoid(player, false, levels[chosenLevel].GetRandomSpawnPoint());
+            player.humanoid = SpawnHumanoid(player, false, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon> { inventoryWeapons[0] });
             players.Add(player);
         }
     }
@@ -177,7 +185,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private Humanoid SpawnHumanoid(Player player, bool isHuman = false, NavPoint pos = default, Vector3 rotation = default, List<Weapon> weapons = null, int equipItem = -1)
+    private Humanoid SpawnHumanoid(Player player, bool isHuman = false, NavPoint pos = default, Vector3 rotation = default, List<Weapon> weapons = null)
     {
         GameObject newPlayer;
 
@@ -224,18 +232,14 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (equipItem > -1 && equipItem < weapons.Count)
+        inventory.Equip(inventory.weapons[inventory.selectedWeapon]);
+
+        if (isHuman)
         {
-            inventory.Equip(inventory.weapons[equipItem]);
-
-            if (isHuman)
-            {
-                UI userInventory = (UI)inventory;
-                userInventory.SelectSlot(equipItem);
-            }
+            UI userInventory = (UI)inventory;
+            userInventory.SelectSlot(inventory.selectedWeapon);
         }
-
-
+        
         playerCount++;
 
         return newPlayerHumanoid;
@@ -295,6 +299,24 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(Settings.MatchDuration);
         EndGame();
+    }
+
+    public void SetAudioLevels()
+    {
+        foreach (AudioSource audioSource in audioSources)
+        {
+            audioSource.volume = Settings.volume * 0.01f; //Convert it to 0-1 
+        }
+    }
+
+    public void GetAudioComponents()
+    {
+        audioSources.Clear();
+
+        foreach (AudioSource audioSource in Resources.FindObjectsOfTypeAll(typeof(AudioSource)))
+        {
+            audioSources.Add(audioSource);
+        }
     }
 
     public void EndGame()

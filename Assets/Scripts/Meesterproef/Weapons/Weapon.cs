@@ -60,8 +60,6 @@ public class Weapon : Item
                     break;
             }
 
-
-
             onFire.Invoke();
             ActivateWeaponEffects();
             StartCoroutine(Cooldown());
@@ -76,11 +74,6 @@ public class Weapon : Item
         TryGetComponent<ParticleSystem>(out attackEffect);
         TryGetComponent<AudioSource>(out attackSound);
         TryGetComponent<Animation>(out attackAnimation);
-
-        if (attackSound != null)
-        {
-            attackSound.volume = Settings.volume * 0.0005f;
-        }
     }
 
     private void Update()
@@ -112,7 +105,8 @@ public class Weapon : Item
     public override void OnEquip()
     {
         //playerCamera = transform.parent.parent.GetComponentInParent<Camera>();
-        playerCamera = GameManager.FindComponentInParentRecursive(transform, typeof(Camera)) as Camera;
+        Humanoid humanoid = GameManager.FindComponentInParentRecursive(transform, typeof(Humanoid)) as Humanoid;
+        playerCamera = GameManager.FindChildRecursive(humanoid.transform, "Camera").gameObject.GetComponent<Camera>();
     }
 
 
