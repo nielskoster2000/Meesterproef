@@ -9,6 +9,7 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] List<Level> levels = new List<Level>();
+    GameObject currentLevel;
     [SerializeField] List<GameObject> weapons = new List<GameObject>();
     List<Weapon> inventoryWeapons = new List<Weapon>();
     [SerializeField] int chosenLevel = 0;
@@ -100,7 +101,7 @@ public class GameManager : MonoBehaviour
         //Load Level
         string levelString = "Levels/Level" + chosenLevel.ToString();
         GameObject level = Resources.Load<GameObject>(levelString);
-        Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
+        currentLevel = Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
         RenderSettings.skybox = levels[chosenLevel].sky;
 
         FillLevel();
@@ -132,6 +133,13 @@ public class GameManager : MonoBehaviour
 
         GetAudioComponents();
         SetAudioLevels();
+    }
+
+    public void ClearLevel()
+    {
+        players.Clear();
+
+        Destroy(currentLevel);
     }
 
     public void SetPlayerParent()
@@ -325,7 +333,7 @@ public class GameManager : MonoBehaviour
         print("Game ended!");
     }
 
-    public void QuitGame()
+    public static void QuitGame()
     {
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

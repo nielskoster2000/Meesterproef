@@ -6096,6 +6096,7 @@ MonoBehaviour:
   userDefinedBotCount: 0
   maxPlayerCount: 6
   players: []
+  audioSources: []
 --- !u!1 &1318644164
 GameObject:
   m_ObjectHideFlags: 0

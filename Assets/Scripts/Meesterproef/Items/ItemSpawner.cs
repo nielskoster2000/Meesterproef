@@ -34,7 +34,7 @@ public class ItemSpawner : MonoBehaviour
                 }
             }
 
-            pickupSound.Play();
+            //pickupSound.Play();
         }
 
         //StartCoroutine(StartRespawn(RespawnTime));
