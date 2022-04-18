@@ -58,19 +58,17 @@ public class User : MonoBehaviour
         //Pause game and show menu
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            PauseGame();
+            PauseGame(!Settings.gamePaused);
         }
     }
 
-    public void PauseGame()
+    public void PauseGame(bool boolean)
     {
-        Settings.PauseGame(!Settings.gamePaused);
-        if (gameObject.TryGetComponent<UI>(out UI ui))
+        Settings.PauseGame(boolean);
+        if (gameObject.TryGetComponent<UI>(out UI ui) && boolean == true)
         {
             ui.onPauseMenuSelected.Invoke();
         }
-        ToggleCursor();
-        ShowCursor(showCursor);
     }
 
 
@@ -136,6 +134,7 @@ public class User : MonoBehaviour
     public void ShowCursor(bool boolean)
     {
         Cursor.visible = boolean;
+        showCursor = boolean;
 
         if (boolean == true)
         {

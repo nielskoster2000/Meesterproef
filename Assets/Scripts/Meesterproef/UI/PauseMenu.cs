@@ -11,7 +11,6 @@ public class PauseMenu : MonoBehaviour
     Button Settings;
     Button RetireGame;
     Button QuitGame;
-    GameManager gameManager;
 
     private void Awake()
     {
@@ -25,13 +24,12 @@ public class PauseMenu : MonoBehaviour
         Settings.onClick.AddListener(ToggleSettings);
         RetireGame.onClick.AddListener(Retire);
         QuitGame.onClick.AddListener(GameManager.QuitGame);
-
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     public void PauseGame()
     {
-        user.PauseGame();
+        //user.PauseGame();
+        user.ShowCursor(true);
         gameObject.SetActive(false);
     }
 
@@ -42,7 +40,6 @@ public class PauseMenu : MonoBehaviour
 
     public void Retire()
     {
-        gameManager.ClearLevel();
         user.ShowCursor(true);
         SceneManager.LoadScene("MainMenu");
     }

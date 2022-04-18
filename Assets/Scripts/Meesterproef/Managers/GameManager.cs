@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
             inventoryWeapons.Add(item.GetComponentInChildren<Weapon>());
         }
 
+        SceneManager.sceneLoaded += LoadLevel;
+
         GetAudioComponents();
         SetAudioLevels();
     }
@@ -67,10 +69,6 @@ public class GameManager : MonoBehaviour
     {
         text.text = levels[chosenLevel].levelName;
     }
-    public void UpdateLevelName(TextMeshProUGUI text)
-    {
-        text.text = levels[chosenLevel].levelName;
-    }
 
     public void ChangeLevel(int amount)
     {
@@ -89,22 +87,20 @@ public class GameManager : MonoBehaviour
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
-
-        if (sceneName != "MainMenu")
-        {
-            SceneManager.sceneLoaded += LoadLevel;
-        }
     }
 
     public void LoadLevel(Scene scene, LoadSceneMode mode)
     {
-        //Load Level
-        string levelString = "Levels/Level" + chosenLevel.ToString();
-        GameObject level = Resources.Load<GameObject>(levelString);
-        currentLevel = Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
-        RenderSettings.skybox = levels[chosenLevel].sky;
+        if (scene.name != "MainMenu")
+        {       
+            //Load Level
+            string levelString = "Levels/Level" + chosenLevel.ToString();
+            GameObject level = Resources.Load<GameObject>(levelString);
+            currentLevel = Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
+            RenderSettings.skybox = levels[chosenLevel].sky;
 
-        FillLevel();
+            FillLevel();
+        }
     }
 
     private string GetRandomBotName()
@@ -133,13 +129,6 @@ public class GameManager : MonoBehaviour
 
         GetAudioComponents();
         SetAudioLevels();
-    }
-
-    public void ClearLevel()
-    {
-        players.Clear();
-
-        Destroy(currentLevel);
     }
 
     public void SetPlayerParent()
