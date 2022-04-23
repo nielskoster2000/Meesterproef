@@ -35,7 +35,8 @@ public class Navigation : MonoBehaviour
                 animator.enabled = true;
             }
 
-            if (!combatPackage.combat) //If combat is not active
+            bool outOfAmmo = combatPackage.inventory.weapons[combatPackage.inventory.selectedWeapon].ammo <= 0;
+            if (combatPackage.combat == false || outOfAmmo) //If combat is not active
             {
                 Pathfinding();
             }
@@ -53,6 +54,11 @@ public class Navigation : MonoBehaviour
 
     public void Pathfinding()
     {
+        if (!animator.enabled)
+        {
+            animator.enabled = true;
+        }
+
         if (TargetReached())
         {
             if (!traveledNavPoints.Contains(targetNavPoint))
@@ -72,6 +78,11 @@ public class Navigation : MonoBehaviour
 
     public void CombatMovement()
     {
+        if (animator.enabled)
+        {
+            animator.enabled = false;
+        }
+
         //Combat navigation here
         navMeshAgent.destination = gameObject.transform.position;
     }
