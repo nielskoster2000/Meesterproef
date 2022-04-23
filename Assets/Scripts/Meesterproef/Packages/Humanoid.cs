@@ -6,28 +6,14 @@ using UnityEngine.Events;
 public class Humanoid : MonoBehaviour
 {
     int health;
-    Vector2 stats = new Vector2(0, 0);
     Bounds bounds;
-    [HideInInspector] public UnityEvent<Humanoid> OnPlayerDeath;
+    [HideInInspector] public UnityEvent<Player, Player> OnDeath;
     [HideInInspector] public UnityEvent OnRecievedDamage;
     [HideInInspector] public UnityEvent OnMaxKillsReached;
 
-    public void ChangeKills(int amount)
-    {
-        stats.x += amount; 
+    [HideInInspector] public Player player;
 
-        if (stats.x >= Settings.MatchMaxKills)
-        {
-            OnMaxKillsReached.Invoke();
-        }
-    }
-
-    public void ChangeDeaths(int amount)
-    {
-        stats.y += amount;
-    }
-
-    public void ChangeHealth(int amount)
+    public void ChangeHealth(int amount, Player damager)
     {
         if (amount < 0)
         {
@@ -38,7 +24,7 @@ public class Humanoid : MonoBehaviour
 
         if (health <= 0)
         {
-            Die();
+            Die(player, damager);
         }
     }
 
@@ -47,18 +33,11 @@ public class Humanoid : MonoBehaviour
         return health;
     }
 
-
-    public void Die()
+    public void Die(Player player, Player killer)
     {
-        //Animations or something
-        ChangeDeaths(1);
-        OnPlayerDeath.Invoke(this);
-    }
-
-
-    public Vector2 GetStats()
-    {
-        return stats;
+        player.AddDeath(player);
+        killer.AddKill();
+        OnDeath.Invoke(player, killer);
     }
 
     public Bounds Bounds { get { return bounds; }  private set { bounds = value; } }
