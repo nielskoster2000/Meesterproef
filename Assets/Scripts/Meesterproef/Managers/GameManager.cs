@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int userDefinedBotCount = 0;
     [SerializeField] public int maxPlayerCount = 6; //This is players and bots!
     public static List<Player> players = new List<Player>();
-    string[] botNames = new string[] { "Steve", "Maik", "Rik", "John", "Micheal" };
+    string[] botNames = new string[] { "Steve", "Richard", "Bob", "John", "Micheal", "Peter", "Roger" };
     GameObject playersParent;
     User user = null;
     public static float remainingGameTime;
@@ -125,7 +125,8 @@ public class GameManager : MonoBehaviour
 
         //Actual player
         Player player = new Player(Settings.username);
-        player.humanoid = SpawnHumanoid(player, true, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon> { inventoryWeapons[0] });
+        NavPoint nav = levels[chosenLevel].GetRandomSpawnPoint();
+        player.humanoid = SpawnHumanoid(player, true, nav, default, new List<Weapon> { inventoryWeapons[0] });
         player.humanoid.player = player;
         players.Add(player);
 
@@ -239,8 +240,9 @@ public class GameManager : MonoBehaviour
         newPlayer.transform.parent = playersParent.transform;
 
         //Set pos and rotation
-        if (pos != null) { newPlayer.transform.position = pos.transform.position; } else { newPlayer.transform.position = default; }
+        if (pos != null) { if (isHuman) { newPlayer.transform.position = new Vector3(pos.transform.position.x, pos.transform.position.y + 1f, pos.transform.position.z); } else { newPlayer.transform.position = pos.transform.position; } } else { newPlayer.transform.position = default; }
         if (rotation != null) { newPlayer.transform.rotation = Quaternion.Euler(rotation); } else { newPlayer.transform.rotation = Quaternion.Euler(default); }
+  
 
         Inventory inventory = newPlayer.GetComponentInChildren<Humanoid>().Inventory;
 
