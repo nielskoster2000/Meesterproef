@@ -15,12 +15,17 @@ public class Level : MonoBehaviour
     public Material sky;
     public NavMeshData navMeshData;
     public NavMeshDataInstance navMeshDataInstance;
+    public Camera gameOverCamera;
+    public Canvas gameoverCanvas;
 
     private void Awake()
     {
         Map = gameObject;
 
         navMeshDataInstance = NavMesh.AddNavMeshData(navMeshData);
+        gameOverCamera = GetComponentInChildren<Camera>();
+        gameOverCamera.enabled = false;
+        gameoverCanvas = gameOverCamera.GetComponentInChildren<Canvas>();
     }
 
     private void OnDestroy()
