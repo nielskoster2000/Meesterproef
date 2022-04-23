@@ -239,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce09d21b2e77d1f43878a2cfac3de16d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelName: Test 1
+  levelName: DESERT TOWN
   thumbnail: {fileID: 21300000, guid: 571ee6a91e199464bb6e55e57e28ba83, type: 3}
   Map: {fileID: 0}
   spawnPoints:
