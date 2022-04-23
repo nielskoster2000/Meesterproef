@@ -21,7 +21,6 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        ApplySettings();
         ApplyVolume();
     }
 
@@ -40,7 +39,6 @@ public class MainMenu : MonoBehaviour
     {
         gameManager = Managers.gameManagerInstance;
 
-        int.TryParse(timeLimit.text, out Settings.MatchDuration);
         int.TryParse(maxKills.text, out Settings.MatchMaxKills);
         int.TryParse(botCounter.text, out gameManager.userDefinedBotCount);
 
@@ -107,13 +105,13 @@ public class MainMenu : MonoBehaviour
         {
             amount += result;
             timeLimit.text = amount.ToString();
-            Settings.MatchDuration = int.Parse(timeLimit.text);
+            Settings.MatchDuration = int.Parse(timeLimit.text) * 60;
         }
     }
 
     public void SetTimeLimit(string text)
     {
-        Settings.MatchDuration = int.Parse(text);
+        Settings.MatchDuration = int.Parse(text) * 60; 
     }
 
     public void SetKillLimit(string text)
@@ -139,6 +137,24 @@ public class MainMenu : MonoBehaviour
         settings = Managers.settingsInstance;
         settings.SaveToPlayerPrefs();
         settings.LoadFromPlayerPrefs();
+    }
+
+    public void SaveSetting(InputField inputField)
+    {
+        settings = Managers.settingsInstance;
+        settings.SaveSetting(inputField);
+    }
+
+    public void SaveSetting(Slider slider)
+    {
+        settings = Managers.settingsInstance;
+        settings.SaveSetting(slider);
+    }
+
+    public void SaveSetting(Toggle toggle)
+    {
+        settings = Managers.settingsInstance;
+        settings.SaveSetting(toggle);
     }
 
     public void ApplyVolume()
