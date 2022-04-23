@@ -18,11 +18,11 @@ public class Level : MonoBehaviour
     public Camera gameOverCamera;
     public Canvas gameoverCanvas;
 
-    private void Awake()
+    private void Start()
     {
         Map = gameObject;
 
-        navMeshDataInstance = NavMesh.AddNavMeshData(navMeshData);
+        navMeshDataInstance = NavMesh.AddNavMeshData(navMeshData, gameObject.transform.position, gameObject.transform.rotation);
         gameOverCamera = GetComponentInChildren<Camera>();
         gameOverCamera.enabled = false;
         gameoverCanvas = gameOverCamera.GetComponentInChildren<Canvas>();
@@ -30,11 +30,12 @@ public class Level : MonoBehaviour
 
     private void OnDestroy()
     {
-        NavMesh.RemoveNavMeshData(navMeshDataInstance);
+        navMeshDataInstance.Remove();
     }
 
     public NavPoint GetRandomSpawnPoint() //This does not check for taken spawnpoints!
     {
-        return spawnPoints[Random.Range(0, spawnPoints.Count - 1)];
+        NavPoint random = spawnPoints[Random.Range(0, spawnPoints.Count - 1)];
+        return random;
     }
 }
