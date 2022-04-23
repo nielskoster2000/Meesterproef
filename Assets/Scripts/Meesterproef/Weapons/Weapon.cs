@@ -37,6 +37,7 @@ public class Weapon : Item
     AudioSource attackSound;
     Animation attackAnimation;
     public Camera playerCamera = null;
+    Humanoid weaponHolder;
 
     int humanoidLayer;
     public override void Use()
@@ -98,15 +99,13 @@ public class Weapon : Item
                 }
             }
         }
-
-
     }
 
     public override void OnEquip()
     {
         //playerCamera = transform.parent.parent.GetComponentInParent<Camera>();
-        Humanoid humanoid = GameManager.FindComponentInParentRecursive(transform, typeof(Humanoid)) as Humanoid;
-        playerCamera = GameManager.FindChildRecursive(humanoid.transform, "Camera").gameObject.GetComponent<Camera>();
+        weaponHolder = GameManager.FindComponentInParentRecursive(transform, typeof(Humanoid)) as Humanoid;
+        playerCamera = GameManager.FindChildRecursive(weaponHolder.transform, "Camera").gameObject.GetComponent<Camera>();
     }
 
 
@@ -150,10 +149,9 @@ public class Weapon : Item
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, humanoidLayer))
         {
-            if (hit.transform.TryGetComponent(out Humanoid humanoid) && humanoid.gameObject)
+            if (hit.transform.TryGetComponent(out Humanoid humanoid) && humanoid.gameObject != gameObject) //Check if the gameobject we're hitting is a humanoid, and its not itself
             {
-                humanoid.ChangeHealth(-damage);
-                print("Damaged " + humanoid.name);
+                humanoid.ChangeHealth(-damage, weaponHolder.player);
             }
         }
     }
