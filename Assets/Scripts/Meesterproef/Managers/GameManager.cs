@@ -9,19 +9,21 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] List<Level> levels = new List<Level>();
-    GameObject currentLevel;
+    Level currentLevel;
     [SerializeField] List<GameObject> weapons = new List<GameObject>();
     List<Weapon> inventoryWeapons = new List<Weapon>();
     [SerializeField] int chosenLevel = 0;
-    [SerializeField] int userDefinedBotCount = 0;
-    [SerializeField] int maxPlayerCount = 6; //This is players and bots!
-    [SerializeField] List<Player> players = new List<Player>();
-    string[] botNames = new string[] { "Steve", "Maik", "Rik", "John" };
+    [SerializeField] public int userDefinedBotCount = 0;
+    [SerializeField] public int maxPlayerCount = 6; //This is players and bots!
+    public static List<Player> players = new List<Player>();
+    string[] botNames = new string[] { "Steve", "Maik", "Rik", "John", "Micheal" };
     GameObject playersParent;
+    User user = null;
+    public static float remainingGameTime;
 
     int playerCount = 0;
 
-    [SerializeField] List<AudioSource> audioSources = new List<AudioSource>();
+    public List<AudioSource> audioSources = new List<AudioSource>();
 
     private void Start()
     {
@@ -53,6 +55,11 @@ public class GameManager : MonoBehaviour
         {
             userDefinedBotCount = maxPlayerCount;
         }
+    }
+
+    public void SetBotCount(int amount)
+    {
+        userDefinedBotCount = Mathf.Clamp(amount, 0, maxPlayerCount);
     }
 
     public void UpdateBotCount(Text text)
@@ -95,8 +102,8 @@ public class GameManager : MonoBehaviour
         {       
             //Load Level
             string levelString = "Levels/Level" + chosenLevel.ToString();
-            GameObject level = Resources.Load<GameObject>(levelString);
-            currentLevel = Instantiate(level, new Vector3(0, 0, 0), Quaternion.identity);
+            GameObject levelObject = Resources.Load<GameObject>(levelString);
+            currentLevel = Instantiate(levelObject, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Level>();
             RenderSettings.skybox = levels[chosenLevel].sky;
 
             FillLevel();
@@ -113,13 +120,24 @@ public class GameManager : MonoBehaviour
         //Add players
         SetPlayerParent();
 
+        //Bots
+        SpawnPlayers(userDefinedBotCount);
+
         //Actual player
         Player player = new Player(Settings.username);
         player.humanoid = SpawnHumanoid(player, true, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon> { inventoryWeapons[0] });
+        player.humanoid.player = player;
         players.Add(player);
 
-        //Bots
-        SpawnPlayers(userDefinedBotCount);
+        user = player.humanoid.GetComponent<User>();
+        user.leaderboard.SetLeaderboardSlots();
+
+        foreach (Player p in players)
+        {
+            p.humanoid.OnDeath.AddListener(user.leaderboard.SortSlots);
+        }
+
+
 
         //Add other stuff?
         if (Settings.MatchDuration > 0)
@@ -142,22 +160,24 @@ public class GameManager : MonoBehaviour
         {
             Player player = new Player(GetRandomBotName());
             player.humanoid = SpawnHumanoid(player, false, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon> { inventoryWeapons[0] });
+            player.humanoid.player = player;
             players.Add(player);
         }
+    }
+
+    public void ClearPlayers()
+    {
+        foreach (Player player in players)
+        {
+            Destroy(player.humanoid);
+        }
+
+        players.Clear();
     }
 
     public Humanoid RespawnHumanoid(Player player)
     {
         Humanoid humanoid = SpawnHumanoid(player, player.IsHuman, levels[chosenLevel].GetRandomSpawnPoint(), default, new List<Weapon>() { inventoryWeapons[0] });
-
-        if (player.IsHuman)
-        {
-            humanoid.Inventory = new PlayerInventory();
-        }
-        else
-        {
-            humanoid.Inventory = new Inventory();
-        }
 
         return humanoid;
     }
@@ -167,6 +187,8 @@ public class GameManager : MonoBehaviour
         DestroyImmediate(player.humanoid.transform.parent.gameObject);
         player.humanoid = null;
 
+
+        //Update humanoid list in combat
         foreach (Player p in players)
         {
             if (p.humanoid != null)
@@ -179,8 +201,9 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(3);
 
         player.humanoid = RespawnHumanoid(player);
+        player.humanoid.player = player;
+        player.humanoid.OnDeath.AddListener(user.leaderboard.SortSlots);
     }
-
 
     private Humanoid SpawnHumanoid(Player player, bool isHuman = false, NavPoint pos = default, Vector3 rotation = default, List<Weapon> weapons = null)
     {
@@ -199,13 +222,17 @@ public class GameManager : MonoBehaviour
 
         Humanoid newPlayerHumanoid = newPlayer.GetComponentInChildren<Humanoid>();
 
-        newPlayerHumanoid.OnPlayerDeath.AddListener(delegate { 
+        newPlayerHumanoid.OnDeath.AddListener(delegate { 
             StartCoroutine(StartRespawn(player));
         });
 
         if (Settings.MatchMaxKills > 0)
         {
-            newPlayerHumanoid.OnMaxKillsReached.AddListener(EndGame);
+            newPlayerHumanoid.OnMaxKillsReached.AddListener(delegate
+            {
+                StartCoroutine(EndGame());
+            }
+            );
         }
 
         //Add to players 
@@ -294,9 +321,17 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator startMatchTime()
     {
+        StartCoroutine(startCountdown());
+        remainingGameTime = Settings.MatchDuration;
         yield return new WaitForSeconds(Settings.MatchDuration);
-        EndGame();
+        StartCoroutine(EndGame());
     }
+
+    public IEnumerator startCountdown()
+    {
+        yield return remainingGameTime -= Time.deltaTime;
+    }
+
 
     public void SetAudioLevels()
     {
@@ -316,10 +351,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void EndGame()
+    public IEnumerator EndGame()
     {
-        //Show leaderboard
-        print("Game ended!");
+        Settings settings = Managers.settingsInstance;
+        //Set leaderboard
+        user.leaderboard.gameObject.SetActive(true);
+        user.leaderboard.transform.parent = currentLevel.gameoverCanvas.transform;
+        user.leaderboard.transform.localPosition = new Vector3(0, 0, 0);
+        user.leaderboard.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+        user.leaderboard.transform.localScale = new Vector3(-1, 1, 1);
+
+        //Set cams
+        user.GetComponent<Humanoid>().cam.enabled = false;
+        currentLevel.gameOverCamera.enabled = true;
+        user.enabled = false;
+
+        //Pause game
+        Settings.PauseGame(true);
+
+        //Wait 10 secs
+        yield return new WaitForSeconds(10);
+
+        //Clear players and such
+        ClearPlayers();
+        user.leaderboard.Clear();
+        SceneManager.LoadScene("MainMenu");
+        Settings.PauseGame(false);
+        user.ShowCursor(true); 
     }
 
     public static void QuitGame()
