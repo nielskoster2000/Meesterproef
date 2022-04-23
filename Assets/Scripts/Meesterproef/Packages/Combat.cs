@@ -8,17 +8,13 @@ public class Combat : MonoBehaviour
     //Objects
     Camera cam;
     Humanoid humanoid;
-    Inventory inventory;
+    public Inventory inventory;
     public List<Humanoid> players = new List<Humanoid>();
     public bool combat = false;
     float aimAccuracy = 5f; //The lower the value, the more accurate the bot
-    GameObject currentEnemy = null;
-
-    //Variables
-    private float aimTime = 0.0f;
+    Humanoid currentEnemy = null;
 
     public List<Transform> raycastpoints = new List<Transform>();
-    GameObject spine;
 
     private void Start()
     {
@@ -26,8 +22,6 @@ public class Combat : MonoBehaviour
         cam = GetComponentInChildren<Camera>();
         humanoid = GetComponent<Humanoid>();
         inventory = humanoid.Inventory;
-
-        spine = GameManager.FindChildRecursive(transform, "mixamorig:Spine"); 
     }
 
     public void GetPlayers()
@@ -38,6 +32,20 @@ public class Combat : MonoBehaviour
 
     private void Update()
     {
+        if (currentEnemy != null)
+        {
+            combat = true;
+            Attack();
+        }
+        else
+        {
+            combat = false;
+            currentEnemy = Detect();
+        }
+    }
+
+    Humanoid Detect()
+    {
         if (inventory.selectedWeapon >= 0)
         {
             Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
@@ -46,20 +54,14 @@ public class Combat : MonoBehaviour
             {
                 if (player.gameObject != gameObject)
                 {
-                    combat = false;
-
                     if (GeometryUtility.TestPlanesAABB(planes, player.Bounds)) //Is a player in the camera's view?
                     {
-                        if (!IsObstructed(player.gameObject))
+                        if (!IsObstructed(player.gameObject)) //Can the bot see the player wihout obstruction?
                         {
-                            combat = true;
-
-                            if (currentEnemy == null || player.gameObject == currentEnemy)
+                            if (currentEnemy == null)
                             {
-                                FightOpponent(player);
+                                return player;
                             }
-
-                            break;
                         }
                     }
                     else
@@ -68,11 +70,25 @@ public class Combat : MonoBehaviour
                     }
                 }
             }
+        }
 
-            if (!combat)
-            {
-                //cam.transform.rotation = gameObject.transform.rotation;
-            }
+        return null;
+    }
+
+    public void Attack()
+    {
+        //Aim
+        Vector3 aimOffset = new Vector3(Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy));
+
+        Quaternion newRotation = Quaternion.LookRotation(currentEnemy.transform.position - transform.position, Vector3.forward);
+        newRotation.x = 0f;
+        newRotation.z = 0f;
+
+        transform.rotation = newRotation;
+
+        if (inventory.weapons[inventory.selectedWeapon] != null)
+        {
+            inventory.weapons[inventory.selectedWeapon].Use();
         }
     }
 
@@ -92,28 +108,5 @@ public class Combat : MonoBehaviour
         }
 
         return true;
-    }
-
-    public void FightOpponent(Humanoid opponent)
-    {
-        currentEnemy = opponent.gameObject;
-
-        //Aim
-        Vector3 aimOffset = new Vector3(Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy), Random.Range(-aimAccuracy, aimAccuracy));
-
-        Quaternion newRotation = Quaternion.LookRotation(opponent.transform.position - transform.position, Vector3.forward);
-        newRotation.x = 0f;
-        //newRotation.y = 0f;
-        newRotation.z = 0f;
-
-        //spine.transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, aimTime);
-        spine.transform.rotation = newRotation;
-
-        //aimTime += Time.deltaTime;
-
-        if (inventory.weapons[inventory.selectedWeapon] != null)
-        {
-            inventory.weapons[inventory.selectedWeapon].Use();
-        }
     }
 }
