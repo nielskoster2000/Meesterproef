@@ -14,8 +14,6 @@ public class Settings : MonoBehaviour
     [SerializeField] float _volume;
     [SerializeField] bool _equipOnPickup;
     [SerializeField] bool _keepCursorInApplicationWindow;
-    [SerializeField] float _MatchDuration;
-    [SerializeField] int _MatchMaxKills;
 
     //Statics
     public static string username;
@@ -23,8 +21,8 @@ public class Settings : MonoBehaviour
     public static float volume;
     public static bool equipOnPickup;
     public static bool keepCursorInApplicationWindow;
-    public static float MatchDuration;
-    public static float MatchMaxKills;
+    public static int MatchDuration;
+    public static int MatchMaxKills;
 
     public static bool gamePaused = false;
 
@@ -61,6 +59,11 @@ public class Settings : MonoBehaviour
         }
     }
 
+    public List<FieldInfo> GetOptions()
+    {
+        return options;
+    }
+
     public void SaveToPlayerPrefs()
     {
         foreach (FieldInfo fieldInfo in options)
@@ -91,7 +94,7 @@ public class Settings : MonoBehaviour
     }
 
 
-    void LoadFromPlayerPrefs()
+    public void LoadFromPlayerPrefs()
     {
         foreach (FieldInfo fieldInfo in options)
         {
@@ -165,6 +168,22 @@ public class Settings : MonoBehaviour
         FieldInfo fieldInfo = GetFieldInfo(inputField.transform.parent.name);
         fieldInfo.SetValue(this, inputField.text);
     }
+
+    public float GetFloat(string fieldName)
+    {
+        return System.Convert.ToSingle(GetFieldInfo(fieldName).GetValue(this));
+    }
+
+    public bool GetBool(string fieldName)
+    {
+        return System.Convert.ToBoolean(GetFieldInfo(fieldName).GetValue(this));
+    }
+
+    public string GetString(string fieldName)
+    {
+        return System.Convert.ToString(GetFieldInfo(fieldName).GetValue(this));
+    }
+
 
     FieldInfo GetFieldInfo(string str)
     {
