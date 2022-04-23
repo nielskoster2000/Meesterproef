@@ -25,7 +25,7 @@ public class UI : Inventory
     {
         base.SetListSize(6);
 
-        slotsParent = gameObject.GetComponentInChildren<LayoutGroup>().gameObject;
+        slotsParent = GameManager.FindChildRecursive(transform, "Inventory");
         humanoid = gameObject.GetComponent<Humanoid>();
 
         if (humanoid.gameObject.CompareTag("Player"))
@@ -51,7 +51,6 @@ public class UI : Inventory
         onPauseMenuSelected.AddListener(TogglePauseMenu);
 
         UpdateHealth();
-
     }
 
     public void Update()
@@ -148,19 +147,19 @@ public class UI : Inventory
         if (base.Pickup(item) == true)
         {
             Weapon weapon = item as Weapon;
-
             weapons[item.inventorySlotPosition].onFire.AddListener(UpdateAmmoCount);
+            inventorySlots[item.inventorySlotPosition].Weapon = weapon;
 
             if (Settings.equipOnPickup) //Finally we'll have to check if the player prefers to automatically equip picked up weapons
             {
-                if (weapon != weapons[item.inventorySlotPosition]) //If weapon is not already selected. This could happen when spawning
+                if (weapons[selectedWeapon] != weapons[item.inventorySlotPosition]) //If weapon is not already selected. This could happen when spawning
                 {
-                    inventorySlots[item.inventorySlotPosition].Weapon = weapon;
                     Equip(weapons[item.inventorySlotPosition]); //Equip the newly selected weapon
                     SelectSlot(item.inventorySlotPosition); //Select the new inventory slot
                 }
             }
 
+            inventorySlots[weapon.inventorySlotPosition].Icon = weapon.icon;
             IsInventoryEmpty = false; //Set this false once a weapon is picked up
 
             return true; //This will return true if a weapon has been picked up
@@ -187,6 +186,7 @@ public class UI : Inventory
         {
             weapon.onFire.Invoke(); //Use the event to update the ammo count without any ammo being actually wasted
             weapon.inHand = true; //Set inHand to true so that you can shoot it
+            SelectSlot(weapon.inventorySlotPosition); //Select inventoryslot
         }
     }
 }
