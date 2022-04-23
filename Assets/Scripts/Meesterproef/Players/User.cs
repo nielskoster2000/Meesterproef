@@ -26,14 +26,15 @@ public class User : MonoBehaviour
     [Range(10, 100)]
     float yaw;
     float pitch;
-    bool showCursor = false;
 
     //Jumping
     [Header("Jumping options")]
     [SerializeField] bool allowJumping = true;
     [SerializeField] bool keepJumping = false;
 
-    private void Start()
+    [HideInInspector] public Leaderboard leaderboard = null;
+
+    private void Awake()
     {
         //Assign variables
         player = gameObject;
@@ -44,7 +45,9 @@ public class User : MonoBehaviour
         movementdirection = Vector3.zero;
 
         //Lock the cursor
-        ShowCursor(showCursor);
+        ShowCursor(false);
+        leaderboard = GetComponentInChildren<Leaderboard>();
+        leaderboard.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -60,15 +63,32 @@ public class User : MonoBehaviour
         {
             PauseGame(!Settings.gamePaused);
         }
+
+        //Leaderboard
+        if (Input.GetKey(KeyCode.Tab))
+        {
+            if (!leaderboard.gameObject.activeSelf)
+            {
+                leaderboard.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            if (leaderboard.gameObject.activeSelf)
+            {
+                leaderboard.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void PauseGame(bool boolean)
     {
         Settings.PauseGame(boolean);
-        if (gameObject.TryGetComponent<UI>(out UI ui) && boolean == true)
+        if (gameObject.TryGetComponent<UI>(out UI ui))
         {
             ui.onPauseMenuSelected.Invoke();
         }
+        ShowCursor(boolean);
     }
 
 
@@ -133,9 +153,6 @@ public class User : MonoBehaviour
 
     public void ShowCursor(bool boolean)
     {
-        Cursor.visible = boolean;
-        showCursor = boolean;
-
         if (boolean == true)
         {
             if (Settings.keepCursorInApplicationWindow)
@@ -151,10 +168,7 @@ public class User : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
         }
-    }
 
-    public void ToggleCursor()
-    {
-        showCursor = !showCursor;
+        Cursor.visible = boolean;
     }
 }
