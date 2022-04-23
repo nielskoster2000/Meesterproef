@@ -114,17 +114,26 @@ public class Navigation : MonoBehaviour
 
     void SetNewTargetAccordingToPath(int tried = 0)
     {
-        NavPoint destination = currentNavPoint.connections[Random.Range(0, currentNavPoint.connections.Count)];
-        if (traveledNavPoints.Contains(destination) && tried < destination.connections.Count)
+        if (currentNavPoint.connections.Count > 1)
         {
-            SetNewTargetAccordingToPath(tried + 1);
-        }
-        else
-        {
-            targetNavPoint = destination;
-        }
+            NavPoint destination = currentNavPoint.connections[Random.Range(0, currentNavPoint.connections.Count)];
 
-        navMeshAgent.destination = targetNavPoint.transform.position;
+            if (traveledNavPoints.Contains(destination) && tried < destination.connections.Count)
+            {
+                SetNewTargetAccordingToPath(tried + 1);
+            }
+            else
+            {
+                targetNavPoint = destination;
+            }
+
+            if (traveledNavPoints.Contains(destination) && currentNavPoint.connections.Count == 1)
+            {
+                traveledNavPoints.Clear();
+            }
+
+            navMeshAgent.destination = targetNavPoint.transform.position;
+        }
     }
 
     bool TargetReached()
