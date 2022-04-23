@@ -1052,7 +1052,7 @@ GameObject:
   - component: {fileID: 3561177835477146225}
   - component: {fileID: 8111816596255807401}
   - component: {fileID: 7807790734429469317}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1106,7 +1106,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7508e759e629eea47bf8042183e829e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnPlayerDeath:
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnKill:
     m_PersistentCalls:
       m_Calls: []
   OnRecievedDamage:
@@ -2051,8 +2054,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5859762738319152820}
   - component: {fileID: 7352616636551027207}
-  - component: {fileID: 4665708900487899828}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Bot_root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2096,20 +2098,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 5
   m_ObstacleAvoidanceType: 4
---- !u!114 &4665708900487899828
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7352616636551027204}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6548018e71b28ef448964f29cc372e87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  username: 
-  humanoid: {fileID: 0}
 --- !u!1 &7591815590449441775
 GameObject:
   m_ObjectHideFlags: 0
