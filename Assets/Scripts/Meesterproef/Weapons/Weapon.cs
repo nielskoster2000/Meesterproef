@@ -77,6 +77,12 @@ public class Weapon : Item
         TryGetComponent<Animation>(out attackAnimation);
     }
 
+    public void OnDisable()
+    {
+        StopAllCoroutines();
+        cooldown = false;
+    }
+
     private void Update()
     {
         if (!Settings.gamePaused)
