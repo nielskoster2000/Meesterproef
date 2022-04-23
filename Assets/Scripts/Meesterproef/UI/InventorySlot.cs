@@ -8,6 +8,7 @@ public class InventorySlot : MonoBehaviour
     Weapon weapon = null;
     Sprite icon = null;
     Image selectionBox = null;
+    Image weaponIcon = null;
 
     public bool Selected
     {
@@ -20,10 +21,14 @@ public class InventorySlot : MonoBehaviour
         set { weapon = value; icon = value.icon; }
     }
 
-    private void Awake()
+    public Sprite Icon
     {
-        selectionBox = GetComponentInChildren<Image>();
+        set { weaponIcon.sprite = value; }
     }
 
-
+    private void Awake()
+    {
+        selectionBox = transform.GetChild(0).GetComponent<Image>();
+        weaponIcon = transform.GetChild(1).GetComponent<Image>();
+    }
 }
