@@ -36,6 +36,7 @@ public class ItemSpawner : MonoBehaviour
             //pickupSound.Play();
         }
 
+        SpawnInstance();
         //StartCoroutine(StartRespawn(RespawnTime));
     }
     private void SpawnInstance()
@@ -49,12 +50,5 @@ public class ItemSpawner : MonoBehaviour
         item.enabled = false;
     }
 
-    private IEnumerator StartRespawn(float time)
-    {
-        Destroy(instance);
-
-        yield return new WaitForSeconds(time);
-
-        SpawnInstance();
-    }
+    
 }
