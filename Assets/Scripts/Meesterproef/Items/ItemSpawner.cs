@@ -25,7 +25,6 @@ public class ItemSpawner : MonoBehaviour
 
                 if (humanoid.Inventory.Pickup(item))
                 {
-                    humanoid.Inventory.Equip(weapon);
                     item.enabled = true;
                 }
                 else
